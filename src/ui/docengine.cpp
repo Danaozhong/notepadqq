@@ -4,7 +4,7 @@
 #include "include/globals.h"
 #include "include/iconprovider.h"
 #include "include/nqqsettings.h"
-#include "notepadqq_env.h"
+#include "notepadqq.h"
 
 #include <QApplication>
 #include <QFileInfo>

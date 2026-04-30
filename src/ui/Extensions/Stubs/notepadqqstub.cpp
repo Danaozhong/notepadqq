@@ -5,7 +5,8 @@
 #include "include/Extensions/extensionsloader.h"
 #include "include/globals.h"
 #include "include/notepadqq.h"
-#include "include/notepadqq_env.h"
+#include "include/notepadqq.h"
+#include "include/mainwindow.h"
 
 #include <QApplication>
 
@@ -22,12 +23,17 @@ namespace Extensions {
 
         }
 
-        void NotepadqqStub::on_newWindow(MainWindow *window)
+        void NotepadqqStub::on_newWindow(QMainWindow *window)
         {
+            MainWindow *mainWindow = qobject_cast<MainWindow *>(window);
+            if (!mainWindow) {
+                return;
+            }
+
             RuntimeSupport *rts = runtimeSupport();
             QSharedPointer<Extensions::Stubs::WindowStub> windowStub =
                     QSharedPointer<Extensions::Stubs::WindowStub>(
-                        new Extensions::Stubs::WindowStub(window, rts));
+                        new Extensions::Stubs::WindowStub(mainWindow, rts));
 
             QJsonArray args;
             args.append(rts->getJSONStub(rts->presentObject(windowStub), windowStub->stubName()));
@@ -46,7 +52,7 @@ namespace Extensions {
 
         NQQ_DEFINE_EXTENSION_METHOD(NotepadqqStub, version, )
         {
-            return StubReturnValue(QJsonValue(::NotepadqqEnv::version));
+            return StubReturnValue(QJsonValue(::Notepadqq::version));
         }
 
         NQQ_DEFINE_EXTENSION_METHOD(NotepadqqStub, print, args)

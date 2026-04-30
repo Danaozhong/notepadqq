@@ -6,7 +6,7 @@
 #include "include/globals.h"
 #include "include/mainwindow.h"
 #include "include/notepadqq.h"
-#include "include/notepadqq_env.h"
+#include "include/notepadqq.h"
 #include "include/nqqsettings.h"
 #include "include/singleapplication.h"
 #include "include/stats.h"
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 
     QCoreApplication::setOrganizationName("Notepadqq");
     QCoreApplication::setApplicationName("Notepadqq");
-    QCoreApplication::setApplicationVersion(NotepadqqEnv::version);
+    QCoreApplication::setApplicationVersion(Notepadqq::version);
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
     QGuiApplication::setDesktopFileName("notepadqq");
@@ -87,10 +87,10 @@ int main(int argc, char *argv[])
         settings.General.setLocalization("en");
     }
     // Check for "run-and-exit" options like -h or -v
-    const auto parser = NotepadqqEnv::getCommandLineArgumentsParser(QApplication::arguments());
+    const auto parser = Notepadqq::getCommandLineArgumentsParser(QApplication::arguments());
 
     if (parser->isSet("print-debug-info")) {
-        NotepadqqEnv::printEnvironmentInfo();
+        Notepadqq::printEnvironmentInfo();
         return EXIT_SUCCESS;
     }
 
@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
 
     // Arguments received from another instance
     QObject::connect(&a, &SingleApplication::receivedArguments, &a, [=](const QString &workingDirectory, const QStringList &arguments) {
-        QSharedPointer<QCommandLineParser> parser = NotepadqqEnv::getCommandLineArgumentsParser(arguments);
+        QSharedPointer<QCommandLineParser> parser = Notepadqq::getCommandLineArgumentsParser(arguments);
         if (parser->isSet("new-window")) {
             // Open a new window
             MainWindow *win = new MainWindow(workingDirectory, arguments, [](MainWindow* wnd) { emit Notepadqq::getInstance().newWindow(wnd); }, std::make_unique<BackupServicePauser>(), nullptr);
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
     // There are no other instances: start a new server.
     a.startServer();
 
-    QFileInfo finfo(NotepadqqEnv::editorPath());
+    QFileInfo finfo(Notepadqq::editorPath());
     if (!finfo.isReadable()) {
         qCritical() << "Can't open file: " + finfo.filePath();
         return EXIT_FAILURE;
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
 
     if (Extensions::ExtensionsLoader::extensionRuntimePresent()) {
         Extensions::ExtensionsLoader::startExtensionsServer();
-        Extensions::ExtensionsLoader::loadExtensions(NotepadqqEnv::extensionsPath());
+        Extensions::ExtensionsLoader::loadExtensions(Notepadqq::extensionsPath());
     } else {
 #ifdef QT_DEBUG
         qDebug() << "Extension support is not installed.";

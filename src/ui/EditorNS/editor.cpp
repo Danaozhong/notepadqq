@@ -1,6 +1,6 @@
 #include "include/EditorNS/editor.h"
 
-#include "include/notepadqq_env.h"
+#include "include/notepadqq.h"
 #include "include/nqqsettings.h"
 
 #include <QDir>
@@ -49,7 +49,7 @@ namespace EditorNS
         query.addQueryItem("themePath", theme.path);
         query.addQueryItem("themeName", theme.name);
 
-        QUrl url = QUrl("file://" + NotepadqqEnv::editorPath());
+        QUrl url = QUrl("file://" + Notepadqq::editorPath());
         url.setQuery(query);
 
         QWebChannel * channel = new QWebChannel(this);
@@ -671,7 +671,7 @@ namespace EditorNS
         if (name == "default" || name.isEmpty())
             return Theme();
 
-        QFileInfo editorPath(NotepadqqEnv::editorPath());
+        QFileInfo editorPath(Notepadqq::editorPath());
         QDir bundledThemesDir(editorPath.absolutePath() + "/libs/codemirror/theme/");
 
         if (bundledThemesDir.exists(name + ".css"))
@@ -682,7 +682,7 @@ namespace EditorNS
 
     QList<Editor::Theme> Editor::themes()
     {
-        auto editorPath = QFileInfo(NotepadqqEnv::editorPath());
+        auto editorPath = QFileInfo(Notepadqq::editorPath());
         QDir bundledThemesDir(editorPath.absolutePath() + "/libs/codemirror/theme/", "*.css");
 
         QList<Theme> out;

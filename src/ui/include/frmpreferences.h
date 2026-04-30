@@ -36,6 +36,12 @@ public:
     explicit frmPreferences(QList<QAction*> actions, ToolBar* toolbar, TopEditorContainer *topEditorContainer, QList<const QMenu*> menus, std::function<void(const Preferences&)> applySettingsCallback, QWidget *parent = nullptr);
     ~frmPreferences();
 
+signals:
+    /**
+     * @brief refreshToolBar Emitted when the toolbar needs to be refreshed.
+     */
+    void refreshToolBar();
+
 private slots:
     void on_treeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
     void on_buttonBox_accepted();

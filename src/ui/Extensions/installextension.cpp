@@ -1,7 +1,7 @@
 #include "include/Extensions/installextension.h"
 
 #include "include/Extensions/extension.h"
-#include "include/notepadqq_env.h"
+#include "include/notepadqq.h"
 #include "ui_Extensions/installextension.h"
 
 #include <QDebug>
@@ -50,7 +50,7 @@ namespace Extensions {
             ui->lblDescription->setText(manifest.value("description").toString());
 
             // Tell the user if this is an update
-            QString alreadyInstalledPath = getAbsoluteExtensionFolder(NotepadqqEnv::extensionsPath(), m_uniqueName);
+            QString alreadyInstalledPath = getAbsoluteExtensionFolder(Notepadqq::extensionsPath(), m_uniqueName);
             if (!alreadyInstalledPath.isNull()) {
                 QJsonObject manifest = Extension::getManifest(alreadyInstalledPath);
                 if (!manifest.isEmpty()) {
@@ -141,20 +141,20 @@ namespace Extensions {
         });
 
         this->setEnabled(false);
-        process->setWorkingDirectory(NotepadqqEnv::extensionToolsPath());
-        process->start(NotepadqqEnv::nodejsPath(), QStringList()
+        process->setWorkingDirectory(Notepadqq::extensionToolsPath());
+        process->start(Notepadqq::nodejsPath(), QStringList()
                       << "install.js"
                       << packagePath
-                      << NotepadqqEnv::extensionsPath()
-                      << NotepadqqEnv::npmPath());
+                      << Notepadqq::extensionsPath()
+                      << Notepadqq::npmPath());
     }
 
     QString InstallExtension::readExtensionManifest(const QString &archivePath)
     {
         QProcess process;
         QByteArray output;
-        process.setWorkingDirectory(NotepadqqEnv::extensionToolsPath());
-        process.start(NotepadqqEnv::nodejsPath(), QStringList() << "readmanifest.js" << archivePath);
+        process.setWorkingDirectory(Notepadqq::extensionToolsPath());
+        process.start(Notepadqq::nodejsPath(), QStringList() << "readmanifest.js" << archivePath);
 
         if (process.waitForStarted(20000)) {
             while (process.waitForReadyRead(30000)) {

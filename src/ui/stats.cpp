@@ -2,7 +2,7 @@
 
 #include "include/Extensions/extensionsloader.h"
 #include "include/nqqsettings.h"
-#include "include/notepadqq_env.h"
+#include "include/notepadqq.h"
 
 #include <QJsonDocument>
 #include <QNetworkAccessManager>

@@ -78,6 +78,7 @@ public:
 public slots:
     void refreshEditorUiInfo(QSharedPointer<Editor> editor);
     void refreshEditorUiCursorInfo(QMap<QString, QVariant> data);
+    void refreshToolBar();
 
 protected:
     void closeEvent(QCloseEvent *event);

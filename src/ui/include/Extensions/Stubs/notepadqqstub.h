@@ -2,7 +2,8 @@
 #define EXTENSIONS_STUBS_NOTEPADQQ_H
 
 #include "include/Extensions/Stubs/stub.h"
-#include "include/mainwindow.h"
+
+#include <QMainWindow>
 
 namespace Extensions {
     namespace Stubs {
@@ -22,7 +23,7 @@ namespace Extensions {
             NQQ_DECLARE_EXTENSION_METHOD(print)
             NQQ_DECLARE_EXTENSION_METHOD(windows)
 
-            void on_newWindow(MainWindow *window);
+            void on_newWindow(QMainWindow *window);
         };
 
     }

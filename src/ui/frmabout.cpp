@@ -1,7 +1,7 @@
 #include "include/frmabout.h"
 
 #include "include/iconprovider.h"
-#include "include/notepadqq_env.h"
+#include "include/notepadqq.h"
 #include "ui_frmabout.h"
 
 #include <QDesktopServices>
@@ -19,11 +19,11 @@ frmAbout::frmAbout(QWidget *parent) :
                                    ui->lblIcon->height()));
 
     ui->lblVersion->setText("v" + QApplication::applicationVersion());
-    ui->lblCopyright->setText(NotepadqqEnv::copyright());
+    ui->lblCopyright->setText(Notepadqq::copyright());
 
     QString linkStyle = "text-decoration: none; color:#606060;";
-    ui->lblContributors->setText(tr("Contributors:") + " <a href=\"" + NotepadqqEnv::contributorsUrl + "\"><span style=\"" + linkStyle + "\">" + tr("GitHub Contributors") + "</span></a>");
-    ui->lblWebsite->setText("<a href=\"" + NotepadqqEnv::website + "\"><span style=\"" + linkStyle + "\">" + NotepadqqEnv::website + "</span></a>");
+    ui->lblContributors->setText(tr("Contributors:") + " <a href=\"" + Notepadqq::contributorsUrl + "\"><span style=\"" + linkStyle + "\">" + tr("GitHub Contributors") + "</span></a>");
+    ui->lblWebsite->setText("<a href=\"" + Notepadqq::website + "\"><span style=\"" + linkStyle + "\">" + Notepadqq::website + "</span></a>");
 
     ui->btnLicense->setStyleSheet("QPushButton {color: black;}");
     ui->pushButton->setStyleSheet("QPushButton {color: black;}");

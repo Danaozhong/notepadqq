@@ -1,11 +1,9 @@
 #include "include/frmpreferences.h"
 
-//#include "include/EditorNS/editor.h"
 #include "include/Extensions/extensionsloader.h"
 #include "include/Sessions/backupservice.h"
 #include "include/keygrabber.h"
-//#include "include/mainwindow.h"
-#include "include/notepadqq_env.h"
+#include "include/notepadqq.h"
 #include "include/stats.h"
 #include "ui_frmpreferences.h"
 #include "include/toolbar.h"
@@ -250,7 +248,7 @@ void frmPreferences::saveAppearanceTab()
 
 void frmPreferences::loadTranslations()
 {
-    QList<QString> translations = NotepadqqEnv::translations();
+    QList<QString> translations = Notepadqq::translations();
 
     QString localizationSetting = m_settings.General.getLocalization();
 
@@ -324,10 +322,6 @@ void frmPreferences::saveShortcuts()
 }
 
 void frmPreferences::loadToolbar() {
-    //auto* wnd = MainWindow::lastActiveInstance();
-
-    //auto actions = wnd->getActions();
-
     auto* widgetItem = new QListWidgetItem("-- Separator --");
     widgetItem->setData(Qt::UserRole, "Separator");
     ui->listToolbarAll->addItem(widgetItem);
@@ -342,7 +336,6 @@ void frmPreferences::loadToolbar() {
         ui->listToolbarAll->addItem(widgetItem);
     }
 
-    //auto* toolbar = wnd->getToolBar();
     for (auto item : m_toolBar->actions()) {
         if (item->isSeparator()) {
             auto* widgetItem = new QListWidgetItem("-- Separator --");
@@ -374,6 +367,7 @@ void frmPreferences::saveToolbar()
 
     m_settings.MainWindow.setToolBarItems(string);
 
+    emit refreshToolBar();
     // TODO clemens - move to caller
 #if 0
     for (auto* wnd : MainWindow::instances())
@@ -666,7 +660,6 @@ void frmPreferences::on_btnToolbarReset_clicked()
     ui->listToolbarCurrent->clear();
 
     QString toolbarItems = m_toolBar->getDefaultToolBarString();
-    //auto actions = MainWindow::lastActiveInstance()->getActions();
     auto parts = toolbarItems.split('|', Qt::SkipEmptyParts);
 
     for (const auto& part : parts) {

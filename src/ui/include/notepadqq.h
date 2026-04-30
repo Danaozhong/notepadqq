@@ -23,9 +23,10 @@
 #ifndef NOTEPADQQ_H
 #define NOTEPADQQ_H
 
-#include "include/mainwindow.h"
+//#include "include/mainwindow.h"
 
 #include <QApplication>
+#include <QMainWindow>
 #include <QCommandLineParser>
 #include <QFile>
 #include <QList>
@@ -54,7 +55,7 @@ public:
         return instance;
     }
 
-#if 0
+#if 1
     static const QString version;
     static const QString contributorsUrl;
     static const QString website;
@@ -81,7 +82,7 @@ public:
 #endif
 
 signals:
-    void newWindow(MainWindow *window);
+    void newWindow(QMainWindow *window);
 
 private:
     Notepadqq() {}

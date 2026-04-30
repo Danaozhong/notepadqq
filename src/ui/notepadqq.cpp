@@ -2,14 +2,14 @@
 
 //#include "include/Extensions/extensionsloader.h"
 //#include "include/Extensions/runtimesupport.h"
-//#include "include/nqqsettings.h"
+#include "include/nqqsettings.h"
 
 #include <QCheckBox>
 #include <QDir>
 #include <QFileInfo>
 #include <QMessageBox>
 
-#if 0
+#if 1
 const QString Notepadqq::version = POINTVERSION;
 const QString Notepadqq::contributorsUrl = "https://github.com/notepadqq/notepadqq/graphs/contributors";
 const QString Notepadqq::website = "https://notepadqq.com";
@@ -21,6 +21,17 @@ QString Notepadqq::copyright()
 
 QString Notepadqq::appDataPath(QString fileName)
 {
+    // When running from Bazel outputs, the data files live in a
+    // sibling <binary>.runfiles tree rather than an installed share dir.
+    QString runfilesPath = QCoreApplication::applicationFilePath() + ".runfiles";
+    if (QDir(runfilesPath).exists()) {
+        QString def = runfilesPath + "/_main/src/";
+        if (!fileName.isNull()) {
+            def.append(fileName);
+        }
+        return def;
+    }
+
 #ifdef Q_OS_MACX
     QString def = QString("%1/../Resources/").
             arg(qApp->applicationDirPath());

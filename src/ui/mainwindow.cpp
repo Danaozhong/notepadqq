@@ -20,7 +20,7 @@
 #include "include/iconprovider.h"
 #include "include/toolbar.h"
 #include "include/notepadqq.h"
-#include "include/notepadqq_env.h"
+#include "include/notepadqq.h"
 #include "include/nqqrun.h"
 #include "ui_mainwindow.h"
 
@@ -525,7 +525,7 @@ void MainWindow::openCommandLineProvidedUrls(const QString &workingDirectory, co
         return;
     }
 
-    QSharedPointer<QCommandLineParser> parser = NotepadqqEnv::getCommandLineArgumentsParser(arguments);
+    QSharedPointer<QCommandLineParser> parser = Notepadqq::getCommandLineArgumentsParser(arguments);
 
     QStringList rawUrls = parser->positionalArguments();
 
@@ -1256,6 +1256,14 @@ void MainWindow::refreshEditorUiCursorInfo(QMap<QString, QVariant> data)
     m_sbDocumentInfoLabel->setText(msg);
 }
 
+void MainWindow::refreshToolBar() {
+#ifdef QT_DEBUG
+    qDebug() << "Refreshing toolbar in all windows";
+#endif /* QT_DEBUG */
+    for (auto* wnd : MainWindow::instances())
+        wnd->loadToolBar();
+}
+
 void MainWindow::on_currentLanguageChanged(QSharedPointer<Editor> sender, QString /*id*/, QString /*name*/)
 {
     if (currentEditor() == sender) {
@@ -1360,7 +1368,7 @@ void MainWindow::refreshEditorUiInfo(QSharedPointer<Editor> editor)
                                            );
 
         newTitle = QString("%1%2 (%3) - %4")
-                       .arg(NotepadqqEnv::fileNameFromUrl(editor->filePath()))
+                       .arg(Notepadqq::fileNameFromUrl(editor->filePath()))
                        .arg(editor->isClean() ? "" : "*")
                        .arg(path)
                        .arg(QApplication::applicationName());
@@ -1528,7 +1536,7 @@ void MainWindow::on_actionCurrent_Filename_to_Clipboard_triggered()
         EditorTabWidget *tabWidget = m_topEditorContainer->currentTabWidget();
         QApplication::clipboard()->setText(tabWidget->tabText(tabWidget->indexOf(editor.data())));
     } else {
-        QApplication::clipboard()->setText(NotepadqqEnv::fileNameFromUrl(editor->filePath()));
+        QApplication::clipboard()->setText(Notepadqq::fileNameFromUrl(editor->filePath()));
     }
 }
 
@@ -1557,6 +1565,11 @@ void MainWindow::on_actionPreferences_triggered()
 {
     frmPreferences *_pref;
     _pref = new frmPreferences(getActions(), getToolBar(), m_topEditorContainer, getMenus(),MainWindow::applySettings, this);
+    // Connect the signals from the preference menu to the main window.
+    if (!connect(_pref, &frmPreferences::refreshToolBar, this, &MainWindow::refreshToolBar)) {
+        qWarning() << "Failed to connect refreshToolBar signal";
+        return;
+    }
     _pref->exec();
     _pref->deleteLater();
 }
@@ -1906,7 +1919,7 @@ void MainWindow::updateRecentDocsInMenu()
     QList<QAction *> actions;
     for (QVariant recentDoc : recentDocs) {
         QUrl url = recentDoc.toUrl();
-        QAction *action = new QAction(NotepadqqEnv::fileNameFromUrl(url), this);
+        QAction *action = new QAction(Notepadqq::fileNameFromUrl(url), this);
         connect(action, &QAction::triggered, this, [this, url]() {
             openRecentFileEntry(url);
         });

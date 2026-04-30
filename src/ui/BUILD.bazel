@@ -6,7 +6,10 @@ load("@rules_qt//:qt.bzl", "qt_cc_binary", "qt_cc_library", "qt_ui_library")
 cc_library(
     name = "ui_headers",
     hdrs = glob(["include/**/*.h"]),
-    includes = [".", "include"],
+    includes = [
+        ".",
+        "include",
+    ],
     visibility = ["//visibility:public"],
 )
 
@@ -62,15 +65,21 @@ qt_cc_library(
     name = "frmabout_form",
     srcs = ["frmabout.cpp"],
     hdrs = ["include/frmabout.h"],
-    includes = [".", "include"],
-    copts = ["-Isrc/ui", "-Isrc/ui/include"],
+    copts = [
+        "-Isrc/ui",
+        "-Isrc/ui/include",
+    ],
+    includes = [
+        ".",
+        "include",
+    ],
     deps = [
-        ":ui_headers",
         ":frmabout_ui",
+        ":ui_headers",
         "@rules_qt//:qt_core",
-        "@rules_qt//:qt_widgets",
-        "@rules_qt//:qt_web_engine_widgets",
         "@rules_qt//:qt_core5_compat",
+        "@rules_qt//:qt_web_engine_widgets",
+        "@rules_qt//:qt_widgets",
     ],
 )
 
@@ -78,8 +87,14 @@ qt_cc_library(
     name = "frmpreferences_form",
     srcs = ["frmpreferences.cpp"],
     hdrs = ["include/frmpreferences.h"],
-    includes = [".", "include"],
-    copts = ["-Isrc/ui", "-Isrc/ui/include"],
+    copts = [
+        "-Isrc/ui",
+        "-Isrc/ui/include",
+    ],
+    includes = [
+        ".",
+        "include",
+    ],
     deps = [
         ":ui_headers",
         ":frmpreferences_ui",
@@ -88,7 +103,6 @@ qt_cc_library(
         #":customqwebview_ui",
         ":editor",
         ":toolbar",
-
     ],
 )
 
@@ -96,21 +110,27 @@ qt_cc_library(
     name = "frmencodingchooser_form",
     srcs = ["frmencodingchooser.cpp"],
     hdrs = ["include/frmencodingchooser.h"],
-    includes = [".", "include"],
-    copts = ["-Isrc/ui", "-Isrc/ui/include"],
+    copts = [
+        "-Isrc/ui",
+        "-Isrc/ui/include",
+    ],
+    includes = [
+        ".",
+        "include",
+    ],
     deps = [
-        ":ui_headers",
         ":frmencodingchooser_ui",
+        ":ui_headers",
         "@rules_qt//:qt_core",
-        "@rules_qt//:qt_widgets",
+        "@rules_qt//:qt_core5_compat",
         "@rules_qt//:qt_web_engine_widgets",
-        "@rules_qt//:qt_core5_compat"
+        "@rules_qt//:qt_widgets",
     ],
 )
 
 qt_cc_library(
     name = "js_bindings",
-    srcs =[],
+    srcs = [],
     hdrs = ["include/EditorNS/js_bindings.h"],
 )
 
@@ -118,8 +138,14 @@ qt_cc_library(
     name = "frmindentationmode_form",
     srcs = ["frmindentationmode.cpp"],
     hdrs = ["include/frmindentationmode.h"],
-    includes = [".", "include"],
-    copts = ["-Isrc/ui", "-Isrc/ui/include"],
+    copts = [
+        "-Isrc/ui",
+        "-Isrc/ui/include",
+    ],
+    includes = [
+        ".",
+        "include",
+    ],
     deps = [
         ":ui_headers",
         ":frmindentationmode_ui",
@@ -134,17 +160,22 @@ qt_cc_library(
     name = "frmlinenumberchooser_form",
     srcs = ["frmlinenumberchooser.cpp"],
     hdrs = ["include/frmlinenumberchooser.h"],
-    includes = [".", "include"],
-    copts = ["-Isrc/ui", "-Isrc/ui/include"],
+    copts = [
+        "-Isrc/ui",
+        "-Isrc/ui/include",
+    ],
+    includes = [
+        ".",
+        "include",
+    ],
     deps = [
-        ":ui_headers",
         ":frmlinenumberchooser_ui",
+        ":ui_headers",
         "@rules_qt//:qt_core",
-        "@rules_qt//:qt_widgets",
         "@rules_qt//:qt_web_engine_widgets",
+        "@rules_qt//:qt_widgets",
     ],
 )
-
 
 #qt_ui_library(
 #    name = "customqwebview_ui",
@@ -162,9 +193,6 @@ qt_ui_library(
     ],
 )
 
-
-
-
 qt_ui_library(
     name = "customwebview_ui",
     ui = "Extensions/customwebview.ui",
@@ -177,14 +205,21 @@ qt_cc_library(
     name = "installextension_form",
     srcs = ["Extensions/installextension.cpp"],
     hdrs = ["include/Extensions/installextension.h"],
-    includes = [".", "include", "Extensions"],
-    copts = ["-Isrc/ui", "-Isrc/ui/include"],
+    copts = [
+        "-Isrc/ui",
+        "-Isrc/ui/include",
+    ],
+    includes = [
+        ".",
+        "Extensions",
+        "include",
+    ],
     deps = [
-        ":ui_headers",
         ":installextension_ui",
+        ":ui_headers",
         "@rules_qt//:qt_core",
-        "@rules_qt//:qt_widgets",
         "@rules_qt//:qt_web_engine_widgets",
+        "@rules_qt//:qt_widgets",
     ],
 )
 
@@ -192,7 +227,10 @@ qt_cc_library(
     name = "mainwindow_form",
     srcs = ["mainwindow.cpp"],
     hdrs = ["include/mainwindow.h"],
-    includes = [".", "include"],
+    includes = [
+        ".",
+        "include",
+    ],
     deps = [
         ":nqqrun",
         ":ui_headers",
@@ -209,7 +247,7 @@ qt_cc_library(
         ":extensionsloader",
         ":sessions",
         ":topeditorcontainer",
-        ":notepadqq_env",
+        ":notepadqq",
         ":backupserviceinterface",
         ":bannerfilechanged",
         ":bannerfileremoved",
@@ -222,23 +260,29 @@ qt_cc_library(
     ],
 )
 
-
 qt_cc_library(
     name = "extension",
     srcs = ["Extensions/extension.cpp"],
     hdrs = ["include/Extensions/extension.h"],
-    includes = [".", "include"],
+    includes = [
+        ".",
+        "include",
+    ],
     deps = [
         "@rules_qt//:qt_core",
-        ":notepadqq_env",
+        ":notepadqq",
         #":notepadqqstub",
     ],
 )
+
 qt_cc_library(
     name = "extensionsserver",
     srcs = ["Extensions/extensionsserver.cpp"],
     hdrs = ["include/Extensions/extensionsserver.h"],
-    includes = [".", "include"],
+    includes = [
+        ".",
+        "include",
+    ],
     deps = [
         ":extension",
         ":runtimesupport",
@@ -251,16 +295,23 @@ qt_cc_library(
     name = "stub",
     srcs = ["Extensions/Stubs/stub.cpp"],
     hdrs = ["include/Extensions/Stubs/stub.h"],
-    includes = [".", "include"],
+    includes = [
+        ".",
+        "include",
+    ],
     deps = [
         "@rules_qt//:qt_core",
     ],
 )
+
 qt_cc_library(
     name = "runtimesupport",
     srcs = ["Extensions/runtimesupport.cpp"],
     hdrs = ["include/Extensions/runtimesupport.h"],
-    includes = [".", "include"],
+    includes = [
+        ".",
+        "include",
+    ],
     deps = [
         ":extension",
         #":extensionsloader",
@@ -272,48 +323,41 @@ qt_cc_library(
     name = "extensionsloader",
     srcs = ["Extensions/extensionsloader.cpp"],
     hdrs = ["include/Extensions/extensionsloader.h"],
-    includes = [".", "include"],
+    includes = [
+        ".",
+        "include",
+    ],
     deps = [
         ":extension",
         ":extensionsserver",
+        ":notepadqq",
     ],
 )
-qt_cc_library(
-    name = "notepadqq_env",
-    srcs = ["notepadqq_env.cpp"],
-    hdrs = ["include/notepadqq_env.h"],
-    includes = [".", "include"],
-    deps = [
-        "@rules_qt//:qt_core",
-        "@rules_qt//:qt_widgets",
-        ":nqqsettings",
-        # ":extensionsloader",
-        
-    ]
-)
-
 
 qt_cc_library(
     name = "language_service",
     srcs = ["EditorNS/languageservice.cpp"],
     hdrs = ["include/EditorNS/languageservice.h"],
     includes = ["."],
-
     deps = [
+        ":notepadqq",
         "@rules_qt//:qt_core",
-        ":notepadqq_env",
     ],
 )
+
 qt_cc_library(
     name = "toolbar",
     srcs = ["toolbar.cpp"],
     hdrs = ["include/toolbar.h"],
-    includes = [".", "include"],
+    includes = [
+        ".",
+        "include",
+    ],
     deps = [
+        ":mainwindow_ui",
         "@rules_qt//:qt_core",
         "@rules_qt//:qt_widgets",
-        ":mainwindow_ui"
-    ]
+    ],
 )
 
 qt_cc_library(
@@ -324,18 +368,20 @@ qt_cc_library(
     hdrs = [
         "include/EditorNS/editor.h",
     ],
-    deps = [
-        "@rules_qt//:qt_web_engine_widgets",
-        "@rules_qt//:qt_core5_compat",
-        ":qtpromise",
-        ":language_service",
-        ":js_bindings",
-        ":nqqsettings",
-        ":customqwebview"
-
+    includes = [
+        ".",
+        "include",
     ],
-    includes = [".", "include"],
-)   
+    deps = [
+        ":customqwebview",
+        ":js_bindings",
+        ":language_service",
+        ":nqqsettings",
+        ":qtpromise",
+        "@rules_qt//:qt_core5_compat",
+        "@rules_qt//:qt_web_engine_widgets",
+    ],
+)
 
 qt_cc_library(
     name = "globals",
@@ -352,9 +398,9 @@ qt_cc_library(
     srcs = ["editortabwidget.cpp"],
     hdrs = ["include/editortabwidget.h"],
     deps = [
+        ":editor",
         ":iconprovider",
         "@rules_qt//:qt_widgets",
-        ":editor",
     ],
 )
 
@@ -364,9 +410,9 @@ qt_cc_library(
     hdrs = ["include/Sessions/persistentcache.h"],
     includes = ["."],
     deps = [
+        ":notepadqq",
         "@rules_qt//:qt_core",
-        ":notepadqq_env",
-    ]
+    ],
 )
 
 qt_cc_library(
@@ -374,7 +420,7 @@ qt_cc_library(
     srcs = ["docengine.cpp"],
     hdrs = ["include/docengine.h"],
     deps = [
-        "@uchardet//:uchardet",
+        "@uchardet",
         ":editortabwidget",
         ":topeditorcontainer",
         ":persistentcache",
@@ -422,9 +468,9 @@ qt_cc_library(
     deps = [
         ":backupserviceinterface",
         ":editor",
+        ":mainwindow_form",
         ":persistentcache",
         ":sessions",
-        ":mainwindow_form",
     ],
 )
 
@@ -445,7 +491,10 @@ qt_cc_library(
     name = "bannerbasicmessage",
     srcs = ["EditorNS/bannerbasicmessage.cpp"],
     hdrs = ["include/EditorNS/bannerbasicmessage.h"],
-    includes = [".", "include"],
+    includes = [
+        ".",
+        "include",
+    ],
     deps = [
         "@rules_qt//:qt_core",
         "@rules_qt//:qt_widgets",
@@ -456,48 +505,64 @@ qt_cc_library(
     name = "bannerfilechanged",
     srcs = ["EditorNS/bannerfilechanged.cpp"],
     hdrs = ["include/EditorNS/bannerfilechanged.h"],
-    includes = [".", "include"],
+    includes = [
+        ".",
+        "include",
+    ],
     deps = [
         ":bannerbasicmessage",
-    ]
+    ],
 )
 
 qt_cc_library(
     name = "bannerfileremoved",
     srcs = ["EditorNS/bannerfileremoved.cpp"],
     hdrs = ["include/EditorNS/bannerfileremoved.h"],
-    includes = [".", "include"],
+    includes = [
+        ".",
+        "include",
+    ],
     deps = [
         ":bannerbasicmessage",
-    ]
+    ],
 )
 
 qt_cc_library(
     name = "bannerindentationdetected",
     srcs = ["EditorNS/bannerindentationdetected.cpp"],
     hdrs = ["include/EditorNS/bannerindentationdetected.h"],
-    includes = [".", "include"],
+    includes = [
+        ".",
+        "include",
+    ],
     deps = [
         ":bannerbasicmessage",
         ":editor",
-    ]
+    ],
 )
 
 qt_cc_library(
     name = "customqwebview",
     srcs = ["EditorNS/customqwebview.cpp"],
     hdrs = ["include/EditorNS/customqwebview.h"],
-    includes = [".", "include"],
+    includes = [
+        ".",
+        "include",
+    ],
     deps = [
-        "@rules_qt//:qt_web_engine_widgets",
         "@rules_qt//:qt_core5_compat",
+        "@rules_qt//:qt_web_engine_widgets",
     ],
 )
+
 qt_cc_library(
     name = "keygrabber",
     srcs = ["keygrabber.cpp"],
     hdrs = ["include/keygrabber.h"],
-    includes = [".", "include"],
+    includes = [
+        ".",
+        "include",
+    ],
     deps = [
         "@rules_qt//:qt_core",
         "@rules_qt//:qt_widgets",
@@ -508,19 +573,24 @@ qt_cc_library(
     name = "clickablelabel",
     srcs = ["clickablelabel.cpp"],
     hdrs = ["include/clickablelabel.h"],
-    includes = [".", "include"],
+    includes = [
+        ".",
+        "include",
+    ],
     deps = [
         "@rules_qt//:qt_core",
         "@rules_qt//:qt_widgets",
     ],
 )
 
-
 qt_cc_library(
     name = "localcommunication",
     srcs = ["localcommunication.cpp"],
     hdrs = ["include/localcommunication.h"],
-    includes = [".", "include"],
+    includes = [
+        ".",
+        "include",
+    ],
     deps = [
         "@rules_qt//:qt_core",
         "@rules_qt//:qt_network",
@@ -531,12 +601,15 @@ qt_cc_library(
     name = "singleapplication",
     srcs = ["singleapplication.cpp"],
     hdrs = ["include/singleapplication.h"],
-    includes = [".", "include"],
+    includes = [
+        ".",
+        "include",
+    ],
     deps = [
         ":localcommunication",
         "@rules_qt//:qt_core",
-        "@rules_qt//:qt_widgets",
         "@rules_qt//:qt_network",
+        "@rules_qt//:qt_widgets",
     ],
 )
 
@@ -544,30 +617,33 @@ qt_cc_library(
     name = "stats",
     srcs = ["stats.cpp"],
     hdrs = ["include/stats.h"],
-    includes = [".", "include"],
+    includes = [
+        ".",
+        "include",
+    ],
     deps = [
-        "@rules_qt//:qt_core",
-        "@rules_qt//:qt_widgets",
-        "@rules_qt//:qt_network",
         ":extensionsloader",
-        ":notepadqq_env",
+        ":notepadqq",
         ":nqqsettings",
-        
+        "@rules_qt//:qt_core",
+        "@rules_qt//:qt_network",
+        "@rules_qt//:qt_widgets",
     ],
 )
-
-
 
 qt_cc_library(
     name = "nqqrun",
     srcs = ["nqqrun.cpp"],
     hdrs = ["include/nqqrun.h"],
-    includes = [".", "include"],
+    includes = [
+        ".",
+        "include",
+    ],
     deps = [
-        ":nqqsettings",
         ":iconprovider",
+        ":nqqsettings",
         "@rules_qt//:qt_widgets",
-    ]
+    ],
 )
 
 qt_cc_library(
@@ -575,8 +651,7 @@ qt_cc_library(
     srcs = ["notepadqq.cpp"],
     hdrs = ["include/notepadqq.h"],
     deps = [
-        #":notepadqq_core",
-        ":mainwindow_form",
+        ":nqqsettings",
         "@rules_qt//:qt_core",
         "@rules_qt//:qt_widgets",
     ],
@@ -586,21 +661,26 @@ qt_cc_library(
     name = "notepadqqstub",
     srcs = ["Extensions/Stubs/notepadqqstub.cpp"],
     hdrs = ["include/Extensions/Stubs/notepadqqstub.h"],
-    includes = [".", "include"],
+    includes = [
+        ".",
+        "include",
+    ],
     deps = [
-        ":stub",
-        ":mainwindow_form",
         ":extensionsloader",
-        ":notepadqq_env",
-        ":notepadqq"
-    ]
+        ":mainwindow_form",
+        ":notepadqq",
+        ":stub",
+    ],
 )
 
 qt_cc_library(
     name = "backupserviceinterface",
     srcs = [],
     hdrs = ["include/Sessions/backupserviceinterface.h"],
-    includes = [".", "include"],
+    includes = [
+        ".",
+        "include",
+    ],
     deps = [
         "@rules_qt//:qt_core",
     ],
@@ -611,18 +691,16 @@ qt_cc_binary(
     srcs = [
         "main.cpp",
     ],
+    data = ["//src/editor:editor_files"],
     deps = [
-        ":notepadqq",
+        ":backupservice",
         ":editor",
         ":extensionsloader",
+        ":notepadqq",
         ":notepadqqstub",
-        ":backupservice",
         ":singleapplication",
     ],
-    data = ["//src/editor:editor_files"],
 )
-
-
 
 qt_ui_library(
     name = "frmsearchreplace_ui",
@@ -640,20 +718,8 @@ qt_ui_library(
     ],
 )
 
-
-
 qt_cc_library(
     name = "search_cpps",
-    hdrs = [
-        "include/Search/advancedsearchdock.h",
-        "include/Search/filereplacer.h",
-        "include/Search/filesearcher.h",
-        "include/Search/searchinstance.h",
-        "include/Search/searchobjects.h",
-        "include/Search/searchstring.h",
-        "include/Search/searchhelpers.h",
-
-    ],
     srcs = [
         "Search/advancedsearchdock.cpp",
         "Search/filereplacer.cpp",
@@ -661,6 +727,15 @@ qt_cc_library(
         "Search/searchinstance.cpp",
         "Search/searchobjects.cpp",
         "Search/searchstring.cpp",
+    ],
+    hdrs = [
+        "include/Search/advancedsearchdock.h",
+        "include/Search/filereplacer.h",
+        "include/Search/filesearcher.h",
+        "include/Search/searchhelpers.h",
+        "include/Search/searchinstance.h",
+        "include/Search/searchobjects.h",
+        "include/Search/searchstring.h",
     ],
     includes = ["."],
     deps = [
@@ -673,7 +748,6 @@ qt_cc_library(
     ],
 )
 
-
 qt_cc_library(
     name = "topeditorcontainer",
     srcs = ["topeditorcontainer.cpp"],
@@ -685,23 +759,25 @@ qt_cc_library(
     ],
 )
 
-
 qt_cc_library(
     name = "frmsearchreplace_form",
     srcs = ["Search/frmsearchreplace.cpp"],
     hdrs = [
-        "include/Search/frmsearchreplace.h"
+        "include/Search/frmsearchreplace.h",
     ],
-    includes = [".", "include"],
+    includes = [
+        ".",
+        "include",
+    ],
     deps = [
-        ":topeditorcontainer",
         ":dlgsearching_ui",
         ":frmsearchreplace_ui",
         ":nqqsettings",
         ":search_cpps",
+        ":topeditorcontainer",
         "@rules_qt//:qt_core",
-        "@rules_qt//:qt_widgets",
-        "@rules_qt//:qt_web_engine_widgets",
         "@rules_qt//:qt_web_engine_core",
+        "@rules_qt//:qt_web_engine_widgets",
+        "@rules_qt//:qt_widgets",
     ],
 )

@@ -4,10 +4,10 @@
 filegroup(
     name = "editor_root_files",
     srcs = [
+        "Languages.json",
         "app.js",
         "index.html",
         "init.js",
-        "Languages.json",
     ],
     visibility = ["//visibility:public"],
 )
@@ -85,15 +85,15 @@ filegroup(
 filegroup(
     name = "editor_files",
     srcs = [
-        ":editor_root_files",
         ":editor_classes",
         ":editor_features",
+        ":editor_root_files",
         ":editor_styles",
+        ":lib_codemirror",
         ":lib_jquery",
+        ":lib_mathjax",
         ":lib_require_js",
         ":lib_throttle_debounce",
-        ":lib_codemirror",
-        ":lib_mathjax",
     ],
     visibility = ["//visibility:public"],
 )

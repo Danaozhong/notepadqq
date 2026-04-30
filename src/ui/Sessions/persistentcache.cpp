@@ -1,6 +1,6 @@
 #include "include/Sessions/persistentcache.h"
 
-#include "include/notepadqq_env.h"
+#include "include/notepadqq.h"
 
 #include <QString>
 #include <QSettings>
