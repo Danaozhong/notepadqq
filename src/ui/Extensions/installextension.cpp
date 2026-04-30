@@ -2,13 +2,15 @@
 
 #include "include/Extensions/extension.h"
 #include "include/notepadqq.h"
-#include "ui_installextension.h"
+#include "ui_Extensions/installextension.h"
 
 #include <QDebug>
 #include <QDir>
 #include <QJsonObject>
 #include <QJsonParseError>
 #include <QProcess>
+#include <QRegularExpression>
+#include <QMessageBox>
 
 namespace Extensions {
 
@@ -74,7 +76,7 @@ namespace Extensions {
         if (extensionUniqueName.isEmpty())
             return QString();
 
-        if (!extensionUniqueName.contains(QRegExp(R"(^[-_0-9a-z]+(\.[-_0-9a-z]+)+$)", Qt::CaseSensitive))) {
+        if (!extensionUniqueName.contains(QRegularExpression(R"(^[-_0-9a-z]+(\.[-_0-9a-z]+)+$)"))) {
             return QString();
         }
 
@@ -100,7 +102,7 @@ namespace Extensions {
 
         QProcess *process = new QProcess(this);
 
-        connect(process, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error), [=](){
+        connect(process, &QProcess::error, [=](){
             setUIClean(false);
 
             QMessageBox infoBox;

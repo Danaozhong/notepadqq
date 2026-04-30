@@ -1,0 +1,47 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "notepadqq (bazel debug)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bazel-bin/src/ui/main",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [
+                {
+                    "name": "QT_QPA_PLATFORM",
+                    "value": "xcb"
+                },
+                {
+                    "name": "QTWEBENGINEPROCESS_PATH",
+                    "value": "${workspaceFolder}/bazel-notepadqq/external/rules_qt++fetch+qt_linux_x86_64/libexec/QtWebEngineProcess"
+                },
+                {
+                    "name": "QTWEBENGINE_RESOURCES_PATH",
+                    "value": "${workspaceFolder}/bazel-notepadqq/external/rules_qt++fetch+qt_linux_x86_64/resources"
+                },
+                {
+                    "name": "QT_QPA_PLATFORM_PLUGIN_PATH",
+                    "value": "${workspaceFolder}/bazel-bin/src/ui/main.runfiles/rules_qt++fetch+qt_linux_x86_64/plugins/platforms"
+                },
+                {
+                    "name": "QT_PLUGIN_PATH",
+                    "value": "${workspaceFolder}/bazel-bin/src/ui/main.runfiles/rules_qt++fetch+qt_linux_x86_64/plugins"
+                }
+            ],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "bazel: build //src/ui:main (debug)",
+            "miDebuggerPath": "/usr/bin/gdb"
+        }
+    ]
+}

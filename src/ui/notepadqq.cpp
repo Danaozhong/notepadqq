@@ -1,7 +1,5 @@
 #include "include/notepadqq.h"
 
-#include "include/Extensions/extensionsloader.h"
-#include "include/Extensions/runtimesupport.h"
 #include "include/nqqsettings.h"
 
 #include <QCheckBox>
@@ -15,11 +13,22 @@ const QString Notepadqq::website = "https://notepadqq.com";
 
 QString Notepadqq::copyright()
 {
-    return QObject::trUtf8("Copyright © 2010-%1, Daniele Di Sarli").arg(COPYRIGHT_YEAR);
+    return QString("Copyright © 2010-%1, Daniele Di Sarli").arg(COPYRIGHT_YEAR);
 }
 
 QString Notepadqq::appDataPath(QString fileName)
 {
+    // When running from Bazel outputs, the data files live in a
+    // sibling <binary>.runfiles tree rather than an installed share dir.
+    QString runfilesPath = QCoreApplication::applicationFilePath() + ".runfiles";
+    if (QDir(runfilesPath).exists()) {
+        QString def = runfilesPath + "/_main/src/";
+        if (!fileName.isNull()) {
+            def.append(fileName);
+        }
+        return def;
+    }
+
 #ifdef Q_OS_MACX
     QString def = QString("%1/../Resources/").
             arg(qApp->applicationDirPath());

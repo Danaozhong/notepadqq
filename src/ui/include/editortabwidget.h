@@ -19,8 +19,8 @@ public:
     explicit EditorTabWidget(QWidget *parent = nullptr);
     ~EditorTabWidget();
 
-    int indexOf(QSharedPointer<Editor> editor) const;
-    int indexOf(QWidget *widget) const;
+    int indexOf(QSharedPointer<const Editor> editor) const;
+    int indexOf(const QWidget *widget) const;
 
     int addEditorTab(bool setFocus, const QString &title);
     /**
@@ -41,7 +41,7 @@ public:
      * @brief tabTextFromEditor Returns the tab text of a given Editor, or an empty string if
      *                          the Editor is not part of this tab widget.
      */
-    QString tabTextFromEditor(QSharedPointer<Editor> editor);
+    QString tabTextFromEditor(QSharedPointer<const Editor> editor);
 
     qreal zoomFactor() const;
     void setZoomFactor(const qreal &zoomFactor);
@@ -60,7 +60,7 @@ public:
     /**
      * @brief tabText Returns the title of the given Editor or tab index
      */
-    QString tabText(Editor* editor) const;
+    QString tabText(const Editor* editor) const;
     QString tabText(int index) const;
 
     /**

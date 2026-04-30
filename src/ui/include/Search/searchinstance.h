@@ -3,6 +3,7 @@
 
 #include "filesearcher.h"
 #include "searchobjects.h"
+#include "topeditorcontainer.h"
 
 #include <QObject>
 #include <QScopedPointer>
@@ -28,7 +29,7 @@ public:
      *               If it's ScopeCurrentDocument or ScopeAllDocuments, a blocking document search will
      *               be started, but searching documents is fast enough not to visibly block the UI.
      */
-    SearchInstance(const SearchConfig& config);
+    SearchInstance(TopEditorContainer& tec, const SearchConfig& config);
     ~SearchInstance();
 
     /**

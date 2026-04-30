@@ -4,7 +4,6 @@
 #include "include/Search/filereplacer.h"
 #include "include/Search/searchstring.h"
 #include "include/iconprovider.h"
-#include "include/mainwindow.h"
 #include "include/nqqsettings.h"
 
 #include <QApplication>
@@ -77,7 +76,7 @@ QSize QSearchDockTitleButton::sizeHint() const
     return QSize(size, size);
 }
 
-void QSearchDockTitleButton::enterEvent(QEvent *event)
+void QSearchDockTitleButton::enterEvent(QEnterEvent *event)
 {
     if (isEnabled()) update();
     QAbstractButton::enterEvent(event);
@@ -94,7 +93,7 @@ void QSearchDockTitleButton::paintEvent(QPaintEvent* /*evt*/)
     QPainter p(this);
 
     QStyleOptionToolButton opt;
-    opt.init(this);
+    // opt.init(this);
     opt.state |= QStyle::State_AutoRaise;
 
     if (style()->styleHint(QStyle::SH_DockWidget_ButtonsHaveFrame, 0, this))
@@ -109,8 +108,8 @@ void QSearchDockTitleButton::paintEvent(QPaintEvent* /*evt*/)
     }
 
     opt.icon = icon();
-    opt.subControls = 0;
-    opt.activeSubControls = 0;
+    opt.subControls = QStyle::SC_None;
+    opt.activeSubControls = QStyle::SC_None;
     opt.features = QStyleOptionToolButton::None;
     opt.arrowType = Qt::NoArrow;
     int size = style()->pixelMetric(QStyle::PM_SmallIconSize, 0, this);
@@ -159,7 +158,7 @@ void showRegexInfo() {
 QLayout* AdvancedSearchDock::buildLeftTitlebar() {
 
     QLabel* label = new QLabel(tr("Advanced Search"));
-    label->setMaximumWidth(label->fontMetrics().width(label->text()));
+    label->setMaximumWidth(label->fontMetrics().size(Qt::TextSingleLine, label->text()).width());
 
     m_btnClearHistory = new QToolButton;
     m_btnClearHistory->setIcon(IconProvider::fromTheme("edit-clear"));
@@ -575,13 +574,11 @@ void AdvancedSearchDock::startReplace()
 
     if (scope == SearchConfig::ScopeCurrentDocument || scope == SearchConfig::ScopeAllOpenDocuments) {
         // Since doc management is a mess we've got to go through all DocResults manually here.
-        TopEditorContainer* tec = config.targetWindow->topEditorContainer();
-
         for (const DocResult& res : filteredResults.results) {
             QSharedPointer<Editor> ed = res.editor;
 
             // The editor might not be open anymore. Try to find it first
-            if(!tec->tabWidgetFromEditor(ed)) continue;
+            if(!m_topEditorContainer.tabWidgetFromEditor(ed)) continue;
 
             QString content = ed->value();
             FileReplacer::replaceAll(res, content, replaceText);
@@ -609,7 +606,6 @@ SearchConfig AdvancedSearchDock::getConfigFromInputs()
     else if (m_chkUseRegex->isChecked())
         config.searchMode = SearchConfig::ModeRegex;
     config.includeSubdirs = m_chkIncludeSubdirs->isChecked();
-    config.targetWindow = m_mainWindow;
 
     return config;
 }
@@ -658,9 +654,9 @@ void AdvancedSearchDock::show(bool show, bool setFocus)
         m_cmbSearchTerm->setFocus();
 }
 
-AdvancedSearchDock::AdvancedSearchDock(MainWindow* mainWindow)
+AdvancedSearchDock::AdvancedSearchDock(QMainWindow* mainWindow, TopEditorContainer& tec)
     : QObject(mainWindow),
-      m_mainWindow(mainWindow),
+      m_topEditorContainer(tec),
       m_dockWidget(new QDockWidget())
 {
     QDockWidget* dockWidget = m_dockWidget.data();
@@ -702,8 +698,8 @@ AdvancedSearchDock::AdvancedSearchDock(MainWindow* mainWindow)
     connect(m_cmbSearchDirectory->lineEdit(), &QLineEdit::returnPressed, [this](){
         startSearch(getConfigFromInputs());
     });
-    connect(m_btnSelectCurrentDirectory, &QToolButton::clicked, [this, mainWindow](){
-        auto tabW = mainWindow->topEditorContainer()->currentTabWidget();
+    connect(m_btnSelectCurrentDirectory, &QToolButton::clicked, [this](){
+        auto tabW = m_topEditorContainer.currentTabWidget();
         auto editor = tabW->currentEditor();
 
         QString dir;
@@ -882,7 +878,7 @@ void AdvancedSearchDock::startSearch(SearchConfig cfg)
         updateFilterHistory(cfg.filePattern);
     }
 
-    m_searchInstances.push_back( std::unique_ptr<SearchInstance>(new SearchInstance(cfg)) );
+    m_searchInstances.push_back( std::unique_ptr<SearchInstance>(new SearchInstance(m_topEditorContainer, cfg)) );
 
     m_cmbSearchHistory->addItem( cfg.getScopeAsString() + ": \"" + cfg.searchString + "\"" );
     m_cmbSearchHistory->setCurrentIndex( m_cmbSearchHistory->count()-1 );

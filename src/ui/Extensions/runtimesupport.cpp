@@ -1,8 +1,8 @@
 #include "include/Extensions/runtimesupport.h"
 
-#include "include/Extensions/Stubs/notepadqqstub.h"
-#include "include/Extensions/extensionsloader.h"
-#include "include/Extensions/extensionsserver.h"
+//#include "include/Extensions/Stubs/notepadqqstub.h"
+//#include "include/Extensions/extensionsloader.h"
+//#include "include/Extensions/extensionsserver.h"
 
 #include <QJsonArray>
 
@@ -10,8 +10,9 @@ namespace Extensions {
 
     RuntimeSupport::RuntimeSupport(QObject *parent) : QObject(parent)
     {
-        QSharedPointer<Stubs::Stub> nqqStub = QSharedPointer<Stubs::Stub>(new Stubs::NotepadqqStub(this));
-        m_pointers.insert(NQQ_STUB_ID, nqqStub);
+        // TODO Clemenes - figure out what this does
+        //QSharedPointer<Stubs::Stub> nqqStub = QSharedPointer<Stubs::Stub>(new Stubs::NotepadqqStub(this));
+        //m_pointers.insert(NQQ_STUB_ID, nqqStub);
     }
 
     RuntimeSupport::~RuntimeSupport()
@@ -102,7 +103,7 @@ namespace Extensions {
         return -1;
     }
 
-    void RuntimeSupport::emitEvent(Stubs::Stub *sender, QString event, const QJsonArray &args)
+    std::optional<QJsonObject> RuntimeSupport::emitEvent(Stubs::Stub *sender, QString event, const QJsonArray &args)
     {
         qint64 objectId = findStubId(sender);
         if (objectId != -1) {
@@ -111,8 +112,10 @@ namespace Extensions {
             retJson.insert("event", event);
             retJson.insert("args", args);
 
-            ExtensionsLoader::extensionsServer()->broadcastMessage(retJson);
+            //ExtensionsLoader::extensionsServer()->broadcastMessage(retJson);
+            return retJson;
         }
+        return std::nullopt;
     }
 
     QJsonObject RuntimeSupport::getCurrentExtensionStartedEvent()

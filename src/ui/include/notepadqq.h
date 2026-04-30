@@ -23,9 +23,10 @@
 #ifndef NOTEPADQQ_H
 #define NOTEPADQQ_H
 
-#include "include/mainwindow.h"
+//#include "include/mainwindow.h"
 
 #include <QApplication>
+#include <QMainWindow>
 #include <QCommandLineParser>
 #include <QFile>
 #include <QList>
@@ -78,7 +79,7 @@ public:
     static void printEnvironmentInfo();
 
 signals:
-    void newWindow(MainWindow *window);
+    void newWindow(QMainWindow *window);
 
 private:
     Notepadqq() {}

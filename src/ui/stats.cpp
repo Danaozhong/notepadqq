@@ -1,6 +1,7 @@
 #include "include/stats.h"
 
 #include "include/Extensions/extensionsloader.h"
+#include "include/nqqsettings.h"
 #include "include/notepadqq.h"
 
 #include <QJsonDocument>
@@ -8,6 +9,7 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QPushButton>
+#include <QMessageBox>
 #include <QSysInfo>
 #include <QTimer>
 #include <QUrl>

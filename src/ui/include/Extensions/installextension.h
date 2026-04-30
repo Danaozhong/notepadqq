@@ -1,7 +1,9 @@
-#ifndef INSTALLEXTENSION_H
-#define INSTALLEXTENSION_H
+#ifndef EXTENSIONS_INSTALLEXTENSION_H
+#define EXTENSIONS_INSTALLEXTENSION_H
 
 #include <QDialog>
+
+#include "ui_Extensions/installextension.h"
 
 namespace Ui {
 class InstallExtension;

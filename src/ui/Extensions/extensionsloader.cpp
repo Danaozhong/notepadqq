@@ -1,10 +1,10 @@
 #include "include/Extensions/extensionsloader.h"
 
-#include "include/mainwindow.h"
 #include "include/notepadqq.h"
 
 #include <QDateTime>
 #include <QDirIterator>
+#include <QRandomGenerator>
 
 namespace Extensions {
 
@@ -26,7 +26,7 @@ namespace Extensions {
         QString name = "notepadqq-exts-";
         name += QString::number(QDateTime::currentMSecsSinceEpoch());
         name += "-";
-        name += QString::number(qrand());
+        name += QString::number(QRandomGenerator::global()->generate());
 
         return startExtensionsServer(name);
     }

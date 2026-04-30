@@ -5,14 +5,20 @@
 #include <QTimer>
 
 #include <QSharedPointer>
+#include <QMainWindow>
 
 #include <set>
 #include <tuple>
 
-namespace EditorNS{
-class Editor;
-}
-class MainWindow;
+#include "EditorNS/editor.h"
+
+#include "include/mainwindow.h"
+#include "include/Sessions/backupserviceinterface.h"
+
+//namespace EditorNS{
+//class Editor;
+//}
+//class MainWindow;
 
 /**
  * @brief The BackupService class handles automatic saving of currently open windows, tabs, and documents.
@@ -21,12 +27,11 @@ class MainWindow;
  */
 class BackupService {
 public:
-
     /**
      * @brief restoreFromAutosave Reads the autosave sessions and recreates
      *        all windows and their tabs.
      */
-    static bool restoreFromBackup();
+    static bool restoreFromBackup(std::function<void(MainWindow*)> newWindowCallback);
 
     /**
      * @brief detectImproperShutdown
@@ -58,10 +63,10 @@ public:
      *        running.
      */
     static void resume();
-
 private:
     static QTimer s_autosaveTimer;
     static bool s_autosaveEnabled;
+    
 
     /**
      * @brief The WindowData struct contains a list Editor*'s and the history generation
@@ -86,7 +91,7 @@ private:
     static std::set<WindowData> s_backupWindowData;
 
     /**
-     * @brief executeAutosave Updates the data inside s_autosaveData and executes saveSession
+     * @brief executeBackup Updates the data inside s_backupWindowData and executes writeBackup
      *        for every open MainWindow that needs it.
      */
     static void executeBackup();
@@ -98,20 +103,26 @@ private:
     static bool writeBackup(MainWindow* wnd);
 };
 
+
 /**
  * @brief Utility class used to pause the BackupService within a block of code.
  *        The service is automatically resumed as soon as the program exits
  *        the block.
  */
-class BackupServicePauser {
+class BackupServicePauser: public BackupServicePauserInterface {
 public:
     inline explicit BackupServicePauser() {}
 
+    virtual std::unique_ptr<BackupServicePauserInterface> Clone () const {
+        return std::make_unique<BackupServicePauser>(*this);
+    }
+
     // We can't pause it from the constructor because then we get a "unused var" warning
     // whenever this object is instantiated.
-    inline void pause() { BackupService::pause(); }
+    virtual inline void pause() { BackupService::pause(); }
 
-    inline ~BackupServicePauser() { BackupService::resume(); }
+    virtual inline ~BackupServicePauser() { BackupService::resume(); }
 };
+
 
 #endif // AUTOSAVE_H

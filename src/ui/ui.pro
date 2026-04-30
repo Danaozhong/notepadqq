@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui svg widgets printsupport network webenginewidgets webchannel websockets dbus
+QT       += core gui svg widgets printsupport network webenginewidgets webchannel websockets dbus core5compat
 CONFIG += c++14 link_pkgconfig
 PKGCONFIG += uchardet
 
@@ -43,7 +43,7 @@ isEmpty(DESTDIR) {
 }
 
 isEmpty(LRELEASE) {
-    !macx:!haiku: LRELEASE = qtchooser -run-tool=lrelease -qt=5
+    !macx:!haiku: LRELEASE = lrelease
     haiku: LRELEASE = lrelease
     macx: LRELEASE = lrelease
 }
@@ -60,7 +60,7 @@ INSTALLFILESDIR = ../../support_files
 
 CURRFILE = $$PWD/ui.pro
 
-include(libs/qtpromise/qtpromise.pri)
+include(libs/qtpromise/QtPromise.pri)
 
 SOURCES += main.cpp\
     mainwindow.cpp \

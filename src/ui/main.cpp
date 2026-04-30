@@ -6,6 +6,7 @@
 #include "include/globals.h"
 #include "include/mainwindow.h"
 #include "include/notepadqq.h"
+#include "include/notepadqq.h"
 #include "include/nqqsettings.h"
 #include "include/singleapplication.h"
 #include "include/stats.h"
@@ -38,7 +39,8 @@ int main(int argc, char *argv[])
 #endif
 
     // Initialize random number generator
-    qsrand(QDateTime::currentDateTimeUtc().time().msec() + qrand());
+    // TODO: Fix https://doc.qt.io/archives/qt-5.11/qtglobal-obsolete.html#qsrand
+    // qsrand(QDateTime::currentDateTimeUtc().time().msec() + qrand());
 
 #if QT_VERSION > QT_VERSION_CHECK(5, 6, 0)
     SingleApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -110,7 +112,7 @@ int main(int argc, char *argv[])
         QSharedPointer<QCommandLineParser> parser = Notepadqq::getCommandLineArgumentsParser(arguments);
         if (parser->isSet("new-window")) {
             // Open a new window
-            MainWindow *win = new MainWindow(workingDirectory, arguments, nullptr);
+            MainWindow *win = new MainWindow(workingDirectory, arguments, [](MainWindow* wnd) { emit Notepadqq::getInstance().newWindow(wnd); }, std::make_unique<BackupServicePauser>(), nullptr);
             win->show();
         } else {
             // Send the args to the last focused window
@@ -150,13 +152,13 @@ int main(int argc, char *argv[])
     const bool wantToRestore = settings.General.getAutosaveInterval() > 0 && BackupService::detectImproperShutdown();
     if (wantToRestore) {
         // Attempt to restore from backup. Don't forget to handle commandline arguments.
-        if (BackupService::restoreFromBackup())
+        if (BackupService::restoreFromBackup([](MainWindow* wnd) { emit Notepadqq::getInstance().newWindow(wnd); }))
             MainWindow::instances().back()->openCommandLineProvidedUrls(QDir::currentPath(), QApplication::arguments());
     }
 
     // If we don't have a window by now (e.g. through restoring backup), we'll create one normally.
     if (MainWindow::instances().isEmpty()) {
-        MainWindow* wnd = new MainWindow(QStringList(), nullptr);
+        MainWindow* wnd = new MainWindow(QStringList(), [](MainWindow* wnd) { emit Notepadqq::getInstance().newWindow(wnd); }, std::make_unique<BackupServicePauser>(), nullptr);
 
         if (settings.General.getRememberTabsOnExit()) {
             Sessions::loadSession(wnd->getDocEngine(), wnd->topEditorContainer(), PersistentCache::cacheSessionPath());

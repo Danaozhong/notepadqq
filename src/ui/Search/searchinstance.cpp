@@ -1,7 +1,6 @@
 #include "include/Search/searchinstance.h"
 
 #include "include/EditorNS/editor.h"
-#include "include/mainwindow.h"
 
 #include <QAbstractTextDocumentLayout>
 #include <QApplication>
@@ -101,7 +100,7 @@ public:
     }
 };
 
-SearchInstance::SearchInstance(const SearchConfig& config)
+SearchInstance::SearchInstance(TopEditorContainer& tec, const SearchConfig& config)
     : QObject(nullptr),
       m_searchConfig(config),
       m_treeWidget(new QTreeWidget())
@@ -196,20 +195,17 @@ SearchInstance::SearchInstance(const SearchConfig& config)
         // to our SearchResult instance.
         std::vector<QSharedPointer<Editor>> editorsToSearch;
 
-        MainWindow* mw = config.targetWindow;
-        TopEditorContainer* tec = mw->topEditorContainer();
-
         if (config.searchScope == SearchConfig::ScopeCurrentDocument)
-            editorsToSearch.push_back( mw->currentEditor() );
+            editorsToSearch.push_back( tec.currentEditor() );
         else
-            editorsToSearch = tec->getOpenEditors();
+            editorsToSearch = tec.getOpenEditors();
 
         if (config.searchMode == SearchConfig::ModePlainText ||
             config.searchMode == SearchConfig::ModePlainTextSpecialChars) {
             for (auto ed : editorsToSearch) {
                 DocResult dr = FileSearcher::searchPlainText(config, ed->value());
                 dr.docType = DocResult::TypeDocument;
-                dr.fileName = tec->tabWidgetFromEditor(ed)->tabTextFromEditor(ed);
+                dr.fileName = tec.tabWidgetFromEditor(ed)->tabTextFromEditor(ed);
                 dr.editor = ed;
                 if (!dr.results.empty())
                     m_searchResult.results.push_back(dr);
@@ -219,7 +215,7 @@ SearchInstance::SearchInstance(const SearchConfig& config)
             for (auto ed : editorsToSearch) {
                 DocResult dr = FileSearcher::searchRegExp(regex, ed->value());
                 dr.docType = DocResult::TypeDocument;
-                dr.fileName = tec->tabWidgetFromEditor(ed)->tabTextFromEditor(ed);
+                dr.fileName = tec.tabWidgetFromEditor(ed)->tabTextFromEditor(ed);
                 dr.editor = ed;
                 if (!dr.results.empty())
                     m_searchResult.results.push_back(dr);

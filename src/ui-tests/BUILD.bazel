@@ -1,0 +1,47 @@
+"""Notepadqq UI tests - native Bazel orchestration."""
+
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+
+genrule(
+    name = "ui_tests_binary",
+    srcs = glob(
+        ["**/*"],
+        exclude = [
+            "**/*.o",
+            "**/*.moc",
+        ],
+    ),
+    outs = ["ui_tests_out"],
+    cmd = """
+        set -e
+        SRCDIR=$$(dirname $(location tst_notepadqqtest.cpp))
+        
+        cd $$SRCDIR
+        
+        # Run qmake to generate Makefile
+        qmake6 -o Makefile CONFIG+=release ui-tests.pro
+        
+        # Build with make
+        make -j$$(nproc)
+        
+        # Copy test binary to output
+        if [ -f ui-tests ]; then
+            cp ui-tests $@
+        elif [ -f ./ui_tests ]; then
+            cp ./ui_tests $@
+        else
+            echo "ERROR: Could not find built test binary"
+            exit 1
+        fi
+    """,
+    tools = [
+        "make",
+        "qmake6",
+    ],
+)
+
+filegroup(
+    name = "ui_tests",
+    srcs = [":ui_tests_binary"],
+    output_group = "ui_tests_out",
+)
