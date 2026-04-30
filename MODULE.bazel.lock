@@ -450,7 +450,7 @@
     "@@rules_qt+//extension:qt.bzl%fetch": {
       "general": {
         "bzlTransitiveDigest": "+wmXAn/rrcsNKiW6OUivYSeVfd3AXW5c+xNYlBdh9q4=",
-        "usagesDigest": "6xSH8JMq2dHFNpjaGhwKrzdOUkvWvzPiXJJSQ1YCnKQ=",
+        "usagesDigest": "W9RNZ4SDzSal8E2pTosGcLoSFo4ylH6c+lJ9FDkjUu0=",
         "recordedInputs": [
           "REPO_MAPPING:,rules_qt rules_qt+",
           "REPO_MAPPING:rules_qt+,bazel_skylib bazel_skylib+",
@@ -470,7 +470,7 @@
           "qt_windows_x86_64": {
             "repoRuleId": "@@rules_qt+//extension:download_qt.bzl%download_qt",
             "attributes": {
-              "version": "6.4.0",
+              "version": "6.8.3",
               "os": "windows",
               "target_sdk": "desktop",
               "build_file": "@@rules_qt+//extension:qt/6.8.3/windows_x86_64.BUILD",
@@ -480,7 +480,7 @@
           "qt_mac_aarch64": {
             "repoRuleId": "@@rules_qt+//extension:download_qt.bzl%download_qt",
             "attributes": {
-              "version": "6.4.0",
+              "version": "6.8.3",
               "os": "macos",
               "target_sdk": "desktop",
               "build_file": "@@rules_qt+//extension:qt/6.8.3/mac_aarch64.BUILD",
