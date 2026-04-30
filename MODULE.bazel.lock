@@ -449,8 +449,8 @@
     },
     "@@rules_qt+//extension:qt.bzl%fetch": {
       "general": {
-        "bzlTransitiveDigest": "JAGH4nG0q9f4UAWEoWZn8eKcY5HFlVMckaMKdhYlkHM=",
-        "usagesDigest": "KBBA56YEP2UaFTcgKNIuJTtQgTu1rWE33fB+Bw0VW48=",
+        "bzlTransitiveDigest": "+wmXAn/rrcsNKiW6OUivYSeVfd3AXW5c+xNYlBdh9q4=",
+        "usagesDigest": "6xSH8JMq2dHFNpjaGhwKrzdOUkvWvzPiXJJSQ1YCnKQ=",
         "recordedInputs": [
           "REPO_MAPPING:,rules_qt rules_qt+",
           "REPO_MAPPING:rules_qt+,bazel_skylib bazel_skylib+",
