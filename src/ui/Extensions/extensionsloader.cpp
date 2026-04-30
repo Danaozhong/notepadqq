@@ -1,7 +1,7 @@
 #include "include/Extensions/extensionsloader.h"
 
-#include "include/mainwindow.h"
-#include "include/notepadqq.h"
+//#include "include/mainwindow.h"
+//#include "include/notepadqq.h"
 
 #include <QDateTime>
 #include <QDirIterator>
@@ -74,9 +74,12 @@ namespace Extensions {
 
     bool ExtensionsLoader::extensionRuntimePresent()
     {
+        return false;
+    #if 0 // fix circular include
         QFileInfo f = QFileInfo(Notepadqq::nodejsPath());
         // FIXME Check if version is correct
         return f.exists() && f.isExecutable();
+    #endif
     }
 
 }

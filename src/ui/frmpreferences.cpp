@@ -1,27 +1,33 @@
 #include "include/frmpreferences.h"
 
-#include "include/EditorNS/editor.h"
+//#include "include/EditorNS/editor.h"
 #include "include/Extensions/extensionsloader.h"
 #include "include/Sessions/backupservice.h"
 #include "include/keygrabber.h"
-#include "include/mainwindow.h"
-#include "include/notepadqq.h"
+//#include "include/mainwindow.h"
+#include "include/notepadqq_env.h"
 #include "include/stats.h"
 #include "ui_frmpreferences.h"
+#include "include/toolbar.h"
 
 #include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QInputDialog>
 #include <QSortFilterProxyModel>
 #include <QToolBar>
+#include <QMessageBox>
 
 int frmPreferences::s_lastSelectedTab = 0;
 
-frmPreferences::frmPreferences(TopEditorContainer *topEditorContainer, QWidget *parent) :
+frmPreferences::frmPreferences(QList<QAction*> actions, ToolBar* toolbar, TopEditorContainer *topEditorContainer, QList<const QMenu*> menus, std::function<void(const Preferences&)> applySettingsCallback, QWidget *parent) :
     QDialog(parent),
     m_settings(NqqSettings::getInstance()),
     ui(new Ui::frmPreferences),
-    m_topEditorContainer(topEditorContainer)
+    m_topEditorContainer(topEditorContainer),
+    m_actions(actions),
+    m_toolBar(toolbar),
+    m_menus(menus),
+    m_applySettingsCallback(applySettingsCallback)
 {
     ui->setupUi(this);
 
@@ -244,7 +250,7 @@ void frmPreferences::saveAppearanceTab()
 
 void frmPreferences::loadTranslations()
 {
-    QList<QString> translations = Notepadqq::translations();
+    QList<QString> translations = NotepadqqEnv::translations();
 
     QString localizationSetting = m_settings.General.getLocalization();
 
@@ -271,15 +277,12 @@ void frmPreferences::saveTranslation()
 }
 
 void frmPreferences::loadShortcuts()
-{
-    MainWindow* mw = qobject_cast<MainWindow*>(parent());
+{   
 
     m_keyGrabber = new KeyGrabber();
 
-    const auto& menus = mw->getMenus();
-
     //addMenus() intentionally skips the Language menu since it would just clutter up everything.
-    m_keyGrabber->addMenus(menus);
+    m_keyGrabber->addMenus(m_menus);
     m_keyGrabber->expandAll();
     m_keyGrabber->checkForConflicts();
 
@@ -320,17 +323,16 @@ void frmPreferences::saveShortcuts()
     }
 }
 
-void frmPreferences::loadToolbar()
-{
-    auto* wnd = MainWindow::lastActiveInstance();
+void frmPreferences::loadToolbar() {
+    //auto* wnd = MainWindow::lastActiveInstance();
 
-    auto actions = wnd->getActions();
+    //auto actions = wnd->getActions();
 
     auto* widgetItem = new QListWidgetItem("-- Separator --");
     widgetItem->setData(Qt::UserRole, "Separator");
     ui->listToolbarAll->addItem(widgetItem);
 
-    for (auto item : actions) {
+    for (auto item : m_actions) {
         if (item->objectName().isEmpty() || !item->isVisible())
             continue;
 
@@ -340,8 +342,8 @@ void frmPreferences::loadToolbar()
         ui->listToolbarAll->addItem(widgetItem);
     }
 
-    auto* toolbar = wnd->getToolBar();
-    for (auto item : toolbar->actions()) {
+    //auto* toolbar = wnd->getToolBar();
+    for (auto item : m_toolBar->actions()) {
         if (item->isSeparator()) {
             auto* widgetItem = new QListWidgetItem("-- Separator --");
             widgetItem->setData(Qt::UserRole, "Separator");
@@ -372,8 +374,11 @@ void frmPreferences::saveToolbar()
 
     m_settings.MainWindow.setToolBarItems(string);
 
+    // TODO clemens - move to caller
+#if 0
     for (auto* wnd : MainWindow::instances())
         wnd->loadToolBar();
+#endif
 }
 
 bool frmPreferences::applySettings()
@@ -421,26 +426,8 @@ bool frmPreferences::applySettings()
     const bool lineNumbersVisible = ui->chkShowLineNumbers->isChecked();
 
     // Apply changes to currently opened editors
-    for (MainWindow *w : MainWindow::instances()) {
-        w->showExtensionsMenu(Extensions::ExtensionsLoader::extensionRuntimePresent());
+    m_applySettingsCallback(Preferences{newTheme, fontFamily, fontSize, lineHeight, lineNumbersVisible});
 
-        w->topEditorContainer()->forEachEditor([&](const int, const int, EditorTabWidget *, QSharedPointer<Editor> editor) {
-
-            // Set new theme
-            editor->setTheme(newTheme);
-
-            // Set font override
-            editor->setFont(fontFamily, fontSize, lineHeight);
-
-            // Set line numbers visibility
-            editor->setLineNumbersVisible(lineNumbersVisible);
-
-            // Reset language-dependent settings (e.g. tab settings)
-            editor->setLanguage(editor->getLanguage());
-
-            return true;
-        });
-    }
 
     // Invalidate already initialized editors in the buffer and add a single new
     // Editor to the buffer so we won't have an empty queue.
@@ -678,8 +665,8 @@ void frmPreferences::on_btnToolbarReset_clicked()
 {
     ui->listToolbarCurrent->clear();
 
-    QString toolbarItems = MainWindow::lastActiveInstance()->getDefaultToolBarString();
-    auto actions = MainWindow::lastActiveInstance()->getActions();
+    QString toolbarItems = m_toolBar->getDefaultToolBarString();
+    //auto actions = MainWindow::lastActiveInstance()->getActions();
     auto parts = toolbarItems.split('|', Qt::SkipEmptyParts);
 
     for (const auto& part : parts) {
@@ -690,11 +677,11 @@ void frmPreferences::on_btnToolbarReset_clicked()
             continue;
         }
 
-        auto it = std::find_if(actions.begin(), actions.end(), [&part](QAction* ac) {
+        auto it = std::find_if(m_actions.begin(), m_actions.end(), [&part](QAction* ac) {
             return ac->objectName() == part;
         });
 
-        if (it != actions.end()) {
+        if (it != m_actions.end()) {
             auto* item = *it;
             QString text = item->text().replace("&", "");
             auto* widgetItem = new QListWidgetItem(item->icon(), text);

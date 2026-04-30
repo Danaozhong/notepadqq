@@ -1,0 +1,99 @@
+"""Bazel build targets for the notepadqq editor (JS/CSS/HTML files)."""
+
+# Top-level editor entry-point files
+filegroup(
+    name = "editor_root_files",
+    srcs = [
+        "app.js",
+        "index.html",
+        "init.js",
+        "Languages.json",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "editor_classes",
+    srcs = glob(["classes/**"]),
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "editor_features",
+    srcs = glob(["features/**"]),
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "editor_styles",
+    srcs = glob(["styles/**"]),
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "lib_jquery",
+    srcs = glob(["libs/jquery/**"]),
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "lib_require_js",
+    srcs = glob(["libs/require.js/**"]),
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "lib_throttle_debounce",
+    srcs = glob(["libs/throttle-debounce/**"]),
+    visibility = ["//visibility:public"],
+)
+
+# CodeMirror: only the subset copied by Makefile-codemirror
+# (addon/, keymap/, lib/, mode/, theme/, LICENSE).
+# Exclude mode HTML demos, test files, and m4-specific generated/script files.
+filegroup(
+    name = "lib_codemirror",
+    srcs = glob(
+        [
+            "libs/codemirror/LICENSE",
+            "libs/codemirror/addon/**",
+            "libs/codemirror/keymap/**",
+            "libs/codemirror/lib/**",
+            "libs/codemirror/mode/**",
+            "libs/codemirror/theme/**",
+        ],
+        exclude = [
+            "libs/codemirror/mode/**/*.html",
+            "libs/codemirror/mode/**/test.js",
+            # m4-specific files that Makefile-codemirror removes
+            "libs/codemirror/mode/m4/*.txt",
+            "libs/codemirror/mode/m4/*.sh",
+            "libs/codemirror/mode/m4/*.in",
+        ],
+    ),
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "lib_mathjax",
+    srcs = glob(["libs/MathJax/**"]),
+    visibility = ["//visibility:public"],
+)
+
+# Aggregated target representing the full editor bundle.
+# Add this as a `data` dependency to //src/ui:main.
+filegroup(
+    name = "editor_files",
+    srcs = [
+        ":editor_root_files",
+        ":editor_classes",
+        ":editor_features",
+        ":editor_styles",
+        ":lib_jquery",
+        ":lib_require_js",
+        ":lib_throttle_debounce",
+        ":lib_codemirror",
+        ":lib_mathjax",
+    ],
+    visibility = ["//visibility:public"],
+)

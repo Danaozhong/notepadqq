@@ -3,11 +3,10 @@
 #include "include/Sessions/persistentcache.h"
 #include "include/globals.h"
 #include "include/iconprovider.h"
-#include "include/mainwindow.h"
-#include "include/notepadqq.h"
 #include "include/nqqsettings.h"
+#include "notepadqq_env.h"
 
-#include <QCoreApplication>
+#include <QApplication>
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QPushButton>

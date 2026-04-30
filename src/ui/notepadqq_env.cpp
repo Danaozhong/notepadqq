@@ -1,26 +1,39 @@
-#include "include/notepadqq.h"
+#include "include/notepadqq_env.h"
 
+// TODO Clemens - resolve circular dependency
 //#include "include/Extensions/extensionsloader.h"
 //#include "include/Extensions/runtimesupport.h"
-//#include "include/nqqsettings.h"
+#include "include/nqqsettings.h"
 
-#include <QCheckBox>
+//#include <QCheckBox>
 #include <QDir>
 #include <QFileInfo>
 #include <QMessageBox>
 
-#if 0
-const QString Notepadqq::version = POINTVERSION;
-const QString Notepadqq::contributorsUrl = "https://github.com/notepadqq/notepadqq/graphs/contributors";
-const QString Notepadqq::website = "https://notepadqq.com";
+const QString NotepadqqEnv::version = POINTVERSION;
+const QString NotepadqqEnv::contributorsUrl = "https://github.com/notepadqq/notepadqq/graphs/contributors";
+const QString NotepadqqEnv::website = "https://notepadqq.com";
 
-QString Notepadqq::copyright()
+QString NotepadqqEnv::copyright()
 {
     return QString("Copyright © 2010-%1, Daniele Di Sarli").arg(COPYRIGHT_YEAR);
 }
 
-QString Notepadqq::appDataPath(QString fileName)
+QString NotepadqqEnv::appDataPath(QString fileName)
 {
+    // When running under `bazel run`, Bazel places a <binary>.runfiles/
+    // directory next to the executable. Data files from
+    // //src/editor:editor_files land at _main/src/editor/… inside it,
+    // which mirrors the install-time appdata layout under src/.
+    QString runfilesPath = QCoreApplication::applicationFilePath() + ".runfiles";
+    if (QDir(runfilesPath).exists()) {
+        QString def = runfilesPath + "/_main/src/";
+        if (!fileName.isNull()) {
+            def.append(fileName);
+        }
+        return def;
+    }
+
 #ifdef Q_OS_MACX
     QString def = QString("%1/../Resources/").
             arg(qApp->applicationDirPath());
@@ -41,27 +54,27 @@ QString Notepadqq::appDataPath(QString fileName)
     return def;
 }
 
-QString Notepadqq::editorPath()
+QString NotepadqqEnv::editorPath()
 {
     return appDataPath("editor/index.html");
 }
 
-QString Notepadqq::extensionToolsPath()
+QString NotepadqqEnv::extensionToolsPath()
 {
     return appDataPath("extension_tools");
 }
 
-QString Notepadqq::nodejsPath() {
+QString NotepadqqEnv::nodejsPath() {
     NqqSettings& s = NqqSettings::getInstance();
     return s.Extensions.getRuntimeNodeJS();
 }
 
-QString Notepadqq::npmPath() {
+QString NotepadqqEnv::npmPath() {
     NqqSettings& s = NqqSettings::getInstance();
     return s.Extensions.getRuntimeNpm();
 }
 
-QString Notepadqq::fileNameFromUrl(const QUrl &url)
+QString NotepadqqEnv::fileNameFromUrl(const QUrl &url)
 {
     return QFileInfo(url.toDisplayString(
                          QUrl::RemoveScheme |
@@ -75,7 +88,7 @@ QString Notepadqq::fileNameFromUrl(const QUrl &url)
                      ).fileName();
 }
 
-QSharedPointer<QCommandLineParser> Notepadqq::getCommandLineArgumentsParser(const QStringList &arguments)
+QSharedPointer<QCommandLineParser> NotepadqqEnv::getCommandLineArgumentsParser(const QStringList &arguments)
 {
     QSharedPointer<QCommandLineParser> parser =
             QSharedPointer<QCommandLineParser>(new QCommandLineParser());
@@ -116,7 +129,7 @@ QSharedPointer<QCommandLineParser> Notepadqq::getCommandLineArgumentsParser(cons
     return parser;
 }
 
-QString Notepadqq::extensionsPath()
+QString NotepadqqEnv::extensionsPath()
 {
     QSettings settings;
 
@@ -124,7 +137,7 @@ QString Notepadqq::extensionsPath()
     return f.absoluteDir().absoluteFilePath("extensions");
 }
 
-QList<QString> Notepadqq::translations()
+QList<QString> NotepadqqEnv::translations()
 {
     QList<QString> out;
 
@@ -147,7 +160,7 @@ QList<QString> Notepadqq::translations()
     return out;
 }
 
-void Notepadqq::printEnvironmentInfo()
+void NotepadqqEnv::printEnvironmentInfo()
 {
     qDebug() << QString("Notepadqq: %1").arg(POINTVERSION).toStdString().c_str();
 #ifdef BUILD_SNAP
@@ -163,4 +176,3 @@ void Notepadqq::printEnvironmentInfo()
     qDebug() << QString("CPU: %1").arg(QSysInfo::currentCpuArchitecture()).toStdString().c_str();
     qDebug() << QString("Kernel: %1 - %2").arg(QSysInfo::kernelType(), QSysInfo::kernelVersion()).toStdString().c_str();
 }
-#endif

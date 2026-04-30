@@ -2,7 +2,7 @@
 
 #include "include/Sessions/persistentcache.h"
 #include "include/Sessions/sessions.h"
-#include "include/mainwindow.h"
+//#include "include/mainwindow.h"
 
 #include <QApplication>
 
@@ -89,7 +89,7 @@ bool BackupService::writeBackup(MainWindow* wnd)
     return Sessions::saveSession(wnd->getDocEngine(), wnd->topEditorContainer(), sessPath, cachePath);
 }
 
-bool BackupService::restoreFromBackup()
+bool BackupService::restoreFromBackup(std::function<void(MainWindow*)> newWindowCallback)
 {
     const auto& backupPath = PersistentCache::backupDirPath();
 
@@ -114,7 +114,7 @@ bool BackupService::restoreFromBackup()
     for (const auto& dirInfo : dirs) {
         const auto sessPath = dirInfo.filePath() + "/window.xml";
 
-        MainWindow* wnd = new MainWindow(QStringList(), nullptr);
+        MainWindow* wnd = new MainWindow(QStringList(), newWindowCallback,  std::make_unique<BackupServicePauser>(), nullptr);
         Sessions::loadSession(wnd->getDocEngine(), wnd->topEditorContainer(), sessPath);
         wnd->show();
     }

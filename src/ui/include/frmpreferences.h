@@ -4,9 +4,13 @@
 #include "include/keygrabber.h"
 #include "include/nqqsettings.h"
 #include "include/topeditorcontainer.h"
+#include "include/toolbar.h"
 
 #include <QDialog>
 #include <QTreeWidgetItem>
+#include <QToolBar>
+#include <QAction>
+#include <QList>
 
 namespace Ui {
 class frmPreferences;
@@ -14,12 +18,22 @@ class frmPreferences;
 
 class QAbstractButton;
 
+/**
+ * \brief A structure to hold all editor user preferences. */
+struct Preferences {
+    const Editor::Theme& newTheme;
+    const QString& fontFamily;
+    int fontSize;
+    double lineHeight;
+    bool lineNumbersVisible;
+};
+
 class frmPreferences : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit frmPreferences(TopEditorContainer *topEditorContainer, QWidget *parent = nullptr);
+    explicit frmPreferences(QList<QAction*> actions, ToolBar* toolbar, TopEditorContainer *topEditorContainer, QList<const QMenu*> menus, std::function<void(const Preferences&)> applySettingsCallback, QWidget *parent = nullptr);
     ~frmPreferences();
 
 private slots:
@@ -81,6 +95,15 @@ private:
     NqqSettings& m_settings;
     Ui::frmPreferences *ui;
     TopEditorContainer *m_topEditorContainer;
+    QList<QAction*> m_actions;
+    ToolBar* m_toolBar;
+
+    const QList<const QMenu*> m_menus;
+    
+    // A callback to the main window to apply the settings across all editor intsances.
+    std::function<void(const Preferences&)> m_applySettingsCallback;
+
+
     QSharedPointer<Editor> m_previewEditor;
 
     void loadLanguages();

@@ -1,6 +1,6 @@
 #include "include/nqqsettings.h"
 
-#include "include/notepadqq.h"
+//#include "include/notepadqq_env.h"
 
 #ifdef QT_DEBUG
 #include <QDebug>

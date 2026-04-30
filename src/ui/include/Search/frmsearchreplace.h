@@ -1,5 +1,5 @@
-#ifndef FRMSEARCHREPLACE_H
-#define FRMSEARCHREPLACE_H
+#ifndef SEARCH_FRMSEARCHREPLACE_H
+#define SEARCH_FRMSEARCHREPLACE_H
 
 #include "include/Search/searchhelpers.h"
 #include "include/topeditorcontainer.h"
@@ -145,4 +145,4 @@ private:
     void addToReplaceHistory(QString string);
 };
 
-#endif // FRMSEARCHREPLACE_H
+#endif // SEARCH_FRMSEARCHREPLACE_H

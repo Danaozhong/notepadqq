@@ -3,7 +3,8 @@
 #include "include/Search/searchstring.h"
 #include "include/iconprovider.h"
 #include "include/nqqsettings.h"
-#include "ui_frmsearchreplace.h"
+#include "ui_Search/frmsearchreplace.h"
+#include "include/EditorNS/js_bindings.h"
 
 #include <QCompleter>
 #include <QFileDialog>
@@ -98,7 +99,7 @@ void frmSearchReplace::setSearchText(QString string)
       Workaround is to disable auto complete until the search box was manually edited
       which prevents the bug. Auto complete is enabled again in on_searchStringEdited.
     */
-    // ui->cmbSearch->setCompleter(nullptr);
+    ui->cmbSearch->setCompleter(nullptr);
 }
 
 void frmSearchReplace::setCurrentTab(Tabs tab)
@@ -374,7 +375,7 @@ void frmSearchReplace::on_searchStringEdited(const QString &/*text*/)
         if (ui->actionFind->isChecked()) {
             auto editor = currentEditor();
 
-            QList<Editor::Selection> selections = editor->selections();
+            QList<Selection> selections = editor->selections();
             if (selections.length() > 0) {
                 editor->setCursorPosition(
                             std::min(selections[0].from, selections[0].to));

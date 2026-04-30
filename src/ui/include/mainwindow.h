@@ -5,9 +5,10 @@
 #include "include/Extensions/extension.h"
 #include "include/Search/advancedsearchdock.h"
 #include "include/Search/frmsearchreplace.h"
+#include "include/frmpreferences.h"
 #include "include/nqqsettings.h"
 #include "include/topeditorcontainer.h"
-
+#include "include/Sessions/backupserviceinterface.h"
 #include "QtPrintSupport/QPrinter"
 #include <QCloseEvent>
 #include <QLabel>
@@ -25,8 +26,8 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(const QString &workingDirectory, const QStringList &arguments, QWidget *parent = nullptr);
-    explicit MainWindow(const QStringList &arguments, QWidget *parent = nullptr);
+    explicit MainWindow(const QString &workingDirectory, const QStringList &arguments, std::function<void(MainWindow*)> newWindowCallback, std::unique_ptr<BackupServicePauserInterface> backupServicePauser,  QWidget *parent = nullptr);
+    explicit MainWindow(const QStringList &arguments, std::function<void(MainWindow*)> newWindowCallback, std::unique_ptr<BackupServicePauserInterface> backupServicePauser, QWidget *parent = nullptr);
     ~MainWindow();
 
     static QList<MainWindow *> instances();
@@ -60,13 +61,8 @@ public:
     QAction*  addExtensionMenuItem(QString extensionId, QString text);
     void showExtensionsMenu(bool show);
 
-    /**
-     * @brief getDefaultToolBarString
-     * @return Returns a string with all default toolbar actions and separators, split by a '|'
-     */
-    QString getDefaultToolBarString() const;
 
-    QToolBar* getToolBar() const;
+    ToolBar* getToolBar() const;
     QList<QAction*> getActions() const;
     QList<const QMenu*> getMenus() const;
 
@@ -75,6 +71,10 @@ public:
 
     DocEngine*  getDocEngine() const;
     void generateRunMenu();
+
+    // Called when applying new settings across all windows.
+    static void applySettings(const Preferences& preferences);
+
 public slots:
     void refreshEditorUiInfo(QSharedPointer<Editor> editor);
     void refreshEditorUiCursorInfo(QMap<QString, QVariant> data);
@@ -202,7 +202,7 @@ private:
     static QList<MainWindow*> m_instances;
 
     Ui::MainWindow*       ui;
-    QToolBar*             m_mainToolBar = nullptr;
+    ToolBar*              m_mainToolBar = nullptr;
     TopEditorContainer*   m_topEditorContainer;
     DocEngine*            m_docEngine;
     QMenu*                m_tabContextMenu;
@@ -221,6 +221,12 @@ private:
     bool                  beginSelectPositionSet = false;
 
     AdvancedSearchDock*  m_advSearchDock;
+
+    // a callback that is called to inform the main application when a new window is created.
+    std::function<void(MainWindow*)> m_newWindowCallback;
+
+    // A reference to the backup service, which can be used to pause the backup service when performing operations that would trigger it, such as loading a session.
+    std::unique_ptr<BackupServicePauserInterface> m_backupServicePauser;
 
     /**
      * @brief saveTabsToCache Saves tabs to cache. Utilizes the saveSession function and

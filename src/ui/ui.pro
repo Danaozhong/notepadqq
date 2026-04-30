@@ -60,7 +60,7 @@ INSTALLFILESDIR = ../../support_files
 
 CURRFILE = $$PWD/ui.pro
 
-include(libs/qtpromise/qtpromise.pri)
+include(libs/qtpromise/QtPromise.pri)
 
 SOURCES += main.cpp\
     mainwindow.cpp \

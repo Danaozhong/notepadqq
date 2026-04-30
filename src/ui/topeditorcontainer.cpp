@@ -45,12 +45,12 @@ EditorTabWidget *TopEditorContainer::addTabWidget()
     return tabWidget;
 }
 
-EditorTabWidget *TopEditorContainer::tabWidget(int index)
+EditorTabWidget *TopEditorContainer::tabWidget(int index) const
 {
     return dynamic_cast<EditorTabWidget *>(widget(index));
 }
 
-EditorTabWidget *TopEditorContainer::currentTabWidget()
+EditorTabWidget *TopEditorContainer::currentTabWidget() const
 {
     return m_currentTabWidget;
 }
@@ -72,18 +72,27 @@ EditorTabWidget *TopEditorContainer::inactiveTabWidget(bool createIfNotExists)
         return nullptr;
 }
 
-EditorTabWidget *TopEditorContainer::tabWidgetFromEditor(QSharedPointer<Editor> editor)
+EditorTabWidget *TopEditorContainer::tabWidgetFromEditor(QSharedPointer<const Editor> editor) const
 {
     return tabWidgetFromEditor(editor.data());
 }
 
-EditorTabWidget *TopEditorContainer::tabWidgetFromEditor(Editor* editor)
+EditorTabWidget *TopEditorContainer::tabWidgetFromEditor(QSharedPointer<Editor> editor) const
+{
+    return tabWidgetFromEditor(editor.data());
+}
+
+EditorTabWidget *TopEditorContainer::tabWidgetFromEditor(const Editor* editor) const
 {
     for (int i = 0; i < count(); i++) {
         if (tabWidget(i)->indexOf(editor) > -1)
             return tabWidget(i);
     }
-    return 0;
+    return nullptr;
+}
+
+EditorTabWidget *TopEditorContainer::tabWidgetFromEditor(Editor *editor) const {
+    return tabWidgetFromEditor(const_cast<const Editor *>(editor));
 }
 
 void TopEditorContainer::on_currentTabChanged(int index)
@@ -168,6 +177,28 @@ std::vector<QSharedPointer<Editor>> TopEditorContainer::getOpenEditors()
     return editors;
 }
 
+std::vector<QSharedPointer<const Editor>> TopEditorContainer::getOpenEditors() const
+{
+    std::vector<QSharedPointer<const Editor>> editors;
+
+    for (int i = 0; i < count(); i++) {
+        EditorTabWidget *tabW = tabWidget(i);
+        for (int j = 0; j < tabW->count(); j++) {
+            editors.push_back(tabW->editor(j));
+        }
+    }
+
+    return editors;
+}
+
+QSharedPointer<Editor> TopEditorContainer::currentEditor() {
+    return currentTabWidget()->currentEditor();
+}
+
+QSharedPointer<const Editor> TopEditorContainer::currentEditor() const {
+    return currentTabWidget()->currentEditor();
+}
+
 int TopEditorContainer::getNumEditors()
 {
     int total = 0;
@@ -177,6 +208,7 @@ int TopEditorContainer::getNumEditors()
 
     return total;
 }
+
 
 void TopEditorContainer::disconnectAllTabWidgets()
 {

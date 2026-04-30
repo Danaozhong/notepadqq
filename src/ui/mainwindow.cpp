@@ -7,18 +7,20 @@
 #include "include/Extensions/Stubs/windowstub.h"
 #include "include/Extensions/extensionsloader.h"
 #include "include/Extensions/installextension.h"
-#include "include/Sessions/backupservice.h"
 #include "include/Sessions/persistentcache.h"
 #include "include/Sessions/sessions.h"
 #include "include/clickablelabel.h"
 #include "include/editortabwidget.h"
 #include "include/frmabout.h"
+#include "include/Sessions/backupserviceinterface.h"
 #include "include/frmencodingchooser.h"
 #include "include/frmindentationmode.h"
 #include "include/frmlinenumberchooser.h"
 #include "include/frmpreferences.h"
 #include "include/iconprovider.h"
+#include "include/toolbar.h"
 #include "include/notepadqq.h"
+#include "include/notepadqq_env.h"
 #include "include/nqqrun.h"
 #include "ui_mainwindow.h"
 
@@ -45,13 +47,15 @@
 
 QList<MainWindow*> MainWindow::m_instances = QList<MainWindow*>();
 
-MainWindow::MainWindow(const QString &workingDirectory, const QStringList &arguments, QWidget *parent) :
+MainWindow::MainWindow(const QString &workingDirectory, const QStringList &arguments, std::function<void(MainWindow*)> newWindowCallback, std::unique_ptr<BackupServicePauserInterface> backupServicePauser, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     m_topEditorContainer(new TopEditorContainer(this)),
     m_settings(NqqSettings::getInstance()),
     m_workingDirectory(workingDirectory),
-    m_advSearchDock(new AdvancedSearchDock(this))
+    m_advSearchDock(new AdvancedSearchDock(this, *m_topEditorContainer)),
+    m_newWindowCallback(newWindowCallback),
+    m_backupServicePauser(std::move(backupServicePauser))
 {
     ui->setupUi(this);
     setAttribute(Qt::WA_DeleteOnClose);
@@ -155,11 +159,12 @@ MainWindow::MainWindow(const QString &workingDirectory, const QStringList &argum
     }
 
     //Register our meta types for signal/slot calls here.
-    emit Notepadqq::getInstance().newWindow(this);
+    m_newWindowCallback(this);
+    //emit Notepadqq::getInstance().newWindow(this);
 }
 
-MainWindow::MainWindow(const QStringList &arguments, QWidget *parent)
-    : MainWindow(QDir::currentPath(), arguments, parent)
+MainWindow::MainWindow(const QStringList &arguments, std::function<void(MainWindow*)> newWindowCallback, std::unique_ptr<BackupServicePauserInterface> backupServicePauser, QWidget *parent)
+    : MainWindow(QDir::currentPath(), arguments, newWindowCallback, std::move(backupServicePauser), parent)
 { }
 
 MainWindow::~MainWindow()
@@ -203,7 +208,7 @@ void MainWindow::configureUserInterface()
     indentationActionGroup->addAction(ui->actionIndentation_Custom);
 
     // Create the toolbar
-    m_mainToolBar = new QToolBar("Toolbar");
+    m_mainToolBar = new ToolBar(ui, "Toolbar");
     m_mainToolBar->setIconSize(QSize(16, 16));
     m_mainToolBar->setObjectName("toolbar");
     addToolBar(m_mainToolBar);
@@ -363,7 +368,7 @@ void MainWindow::loadToolBar()
 
     QString toolbarItems = m_settings.MainWindow.getToolBarItems();
     if(toolbarItems.isEmpty())
-        toolbarItems = getDefaultToolBarString();
+        toolbarItems = m_mainToolBar->getDefaultToolBarString();
 
     auto actions = getActions();
     auto parts = toolbarItems.split('|', Qt::SkipEmptyParts);
@@ -520,7 +525,7 @@ void MainWindow::openCommandLineProvidedUrls(const QString &workingDirectory, co
         return;
     }
 
-    QSharedPointer<QCommandLineParser> parser = Notepadqq::getCommandLineArgumentsParser(arguments);
+    QSharedPointer<QCommandLineParser> parser = NotepadqqEnv::getCommandLineArgumentsParser(arguments);
 
     QStringList rawUrls = parser->positionalArguments();
 
@@ -842,7 +847,7 @@ void MainWindow::on_actionOpen_triggered()
         defaultUrl = QUrl::fromLocalFile(m_settings.General.getLastSelectedDir());
 
     // See https://github.com/notepadqq/notepadqq/issues/654
-    BackupServicePauser bsp; bsp.pause();
+    auto bs = m_backupServicePauser->Clone(); bs->pause();
 
     auto dialogOption =
         m_settings.General.getUseNativeFilePicker() ? QFileDialog::Options() : QFileDialog::DontUseNativeDialog;
@@ -850,8 +855,9 @@ void MainWindow::on_actionOpen_triggered()
     QList<QUrl> fileNames =
         QFileDialog::getOpenFileUrls(this, tr("Open"), defaultUrl, tr("All files (*)"), nullptr, dialogOption);
 
-    if (fileNames.empty())
+    if (fileNames.empty()) {
         return;
+    }
 
     m_docEngine->getDocumentLoader()
             .setUrls(fileNames)
@@ -866,15 +872,17 @@ void MainWindow::on_actionOpen_Folder_triggered()
         defaultUrl = QUrl::fromLocalFile(m_settings.General.getLastSelectedDir());
 
     // See https://github.com/notepadqq/notepadqq/issues/654
-    BackupServicePauser bsp; bsp.pause();
+    auto bs = m_backupServicePauser->Clone(); bs->pause();
+
 
     auto dialogOption =
         m_settings.General.getUseNativeFilePicker() ? QFileDialog::Options() : QFileDialog::DontUseNativeDialog;
 
     // Select directory
     QString folder = QFileDialog::getExistingDirectory(this, tr("Open Folder"), defaultUrl.toLocalFile(), dialogOption);
-    if (folder.isEmpty())
+    if (folder.isEmpty()) {
         return;
+    }
 
     // Get files within directory
     QDir dir(folder);
@@ -889,8 +897,9 @@ void MainWindow::on_actionOpen_Folder_triggered()
         }
     }
 
-    if (fileNames.isEmpty())
+    if (fileNames.isEmpty()) {
         return;
+    }
 
     m_docEngine->getDocumentLoader()
             .setUrls(fileNames)
@@ -1050,7 +1059,8 @@ int MainWindow::save(EditorTabWidget *tabWidget, int tab)
 int MainWindow::saveAs(EditorTabWidget *tabWidget, int tab, bool copy)
 {
     // See https://github.com/notepadqq/notepadqq/issues/654
-    BackupServicePauser bsp; bsp.pause();
+    auto bs = m_backupServicePauser->Clone(); bs->pause();
+
 
     auto dialogOption =
         m_settings.General.getUseNativeFilePicker() ? QFileDialog::Options() : QFileDialog::DontUseNativeDialog;
@@ -1091,6 +1101,7 @@ QUrl MainWindow::getSaveDialogDefaultFileName(EditorTabWidget *tabWidget, int ta
 
 QSharedPointer<Editor> MainWindow::currentEditor()
 {
+    // TODO mark this function as obsolete. Editor handling should be done by the topEditorContainer.
     return m_topEditorContainer->currentTabWidget()->currentEditor();
 }
 
@@ -1349,7 +1360,7 @@ void MainWindow::refreshEditorUiInfo(QSharedPointer<Editor> editor)
                                            );
 
         newTitle = QString("%1%2 (%3) - %4")
-                       .arg(Notepadqq::fileNameFromUrl(editor->filePath()))
+                       .arg(NotepadqqEnv::fileNameFromUrl(editor->filePath()))
                        .arg(editor->isClean() ? "" : "*")
                        .arg(path)
                        .arg(QApplication::applicationName());
@@ -1517,7 +1528,7 @@ void MainWindow::on_actionCurrent_Filename_to_Clipboard_triggered()
         EditorTabWidget *tabWidget = m_topEditorContainer->currentTabWidget();
         QApplication::clipboard()->setText(tabWidget->tabText(tabWidget->indexOf(editor.data())));
     } else {
-        QApplication::clipboard()->setText(Notepadqq::fileNameFromUrl(editor->filePath()));
+        QApplication::clipboard()->setText(NotepadqqEnv::fileNameFromUrl(editor->filePath()));
     }
 }
 
@@ -1545,7 +1556,7 @@ void MainWindow::on_actionCurrent_Directory_Path_to_Clipboard_triggered()
 void MainWindow::on_actionPreferences_triggered()
 {
     frmPreferences *_pref;
-    _pref = new frmPreferences(m_topEditorContainer, this);
+    _pref = new frmPreferences(getActions(), getToolBar(), m_topEditorContainer, getMenus(),MainWindow::applySettings, this);
     _pref->exec();
     _pref->deleteLater();
 }
@@ -1845,12 +1856,12 @@ void MainWindow::on_documentLoaded(EditorTabWidget *tabWidget, int tab, bool was
 
 void MainWindow::checkIndentationMode(QSharedPointer<Editor> editor)
 {
-    editor->detectDocumentIndentation().then([=](const std::pair<Editor::IndentationMode, bool> result){
-        Editor::IndentationMode detected = result.first;
+    editor->detectDocumentIndentation().then([=](const std::pair<IndentationMode, bool> result){
+        IndentationMode detected = result.first;
         bool found = result.second;
 
         if (found) {
-            editor->indentationModeP().then([=](Editor::IndentationMode curr) {
+            editor->indentationModeP().then([=](IndentationMode curr) {
                 bool differentTabSpaces = detected.useTabs != curr.useTabs;
                 bool differentSpaceSize = detected.useTabs == false && curr.useTabs == false && detected.size != curr.size;
 
@@ -1895,7 +1906,7 @@ void MainWindow::updateRecentDocsInMenu()
     QList<QAction *> actions;
     for (QVariant recentDoc : recentDocs) {
         QUrl url = recentDoc.toUrl();
-        QAction *action = new QAction(Notepadqq::fileNameFromUrl(url), this);
+        QAction *action = new QAction(NotepadqqEnv::fileNameFromUrl(url), this);
         connect(action, &QAction::triggered, this, [this, url]() {
             openRecentFileEntry(url);
         });
@@ -2160,7 +2171,7 @@ void MainWindow::on_actionIndentation_Custom_triggered()
     dialog->populateWidgets(editor->indentationMode());
 
     if (dialog->exec() == QDialog::Accepted) {
-        Editor::IndentationMode indent = dialog->indentationMode();
+        IndentationMode indent = dialog->indentationMode();
         editor->setCustomIndentationMode(indent.useTabs, indent.size);
     }
 
@@ -2208,6 +2219,29 @@ void MainWindow::generateRunMenu()
     ui->menu_Run->addSeparator();
     a = ui->menu_Run->addAction(tr("Modify Run Commands"));
     connect(a, &QAction::triggered, this, &MainWindow::modifyRunCommands);
+}
+
+void MainWindow::applySettings(const Preferences& preferences) {
+    for (auto *w : MainWindow::instances()) {
+        w->showExtensionsMenu(Extensions::ExtensionsLoader::extensionRuntimePresent());
+
+        w->topEditorContainer()->forEachEditor([&](const int, const int, EditorTabWidget *, QSharedPointer<Editor> editor) {
+
+            // Set new theme
+            editor->setTheme(preferences.newTheme);
+
+            // Set font override
+            editor->setFont(preferences.fontFamily, preferences.fontSize, preferences.lineHeight);
+
+            // Set line numbers visibility
+            editor->setLineNumbersVisible(preferences.lineNumbersVisible);
+
+            // Reset language-dependent settings (e.g. tab settings)
+            editor->setLanguage(editor->getLanguage());
+
+            return true;
+        });
+    }
 }
 
 void MainWindow::modifyRunCommands()
@@ -2374,7 +2408,7 @@ void MainWindow::openRecentFileEntry(QUrl url)
 
 void MainWindow::on_actionOpen_a_New_Window_triggered()
 {
-    MainWindow *b = new MainWindow(QStringList(), 0);
+    MainWindow *b = new MainWindow(QStringList(), m_newWindowCallback, m_backupServicePauser->Clone(), nullptr);
     b->show();
 }
 
@@ -2386,7 +2420,7 @@ void MainWindow::on_actionOpen_in_New_Window_triggered()
         args.append(currentEditor()->filePath().toString(QUrl::None));
     }
 
-    MainWindow *b = new MainWindow(args, 0);
+    MainWindow *b = new MainWindow(args, m_newWindowCallback, m_backupServicePauser->Clone(), nullptr);
     b->show();
 }
 
@@ -2401,7 +2435,7 @@ void MainWindow::on_actionMove_to_New_Window_triggered()
     EditorTabWidget *tabWidget = m_topEditorContainer->currentTabWidget();
     int tab = tabWidget->currentIndex();
     if (closeTab(tabWidget, tab) != tabCloseResult_Canceled) {
-        MainWindow *b = new MainWindow(args, 0);
+        MainWindow *b = new MainWindow(args, m_newWindowCallback, m_backupServicePauser->Clone(), nullptr);
         b->show();
     }
 }
@@ -2430,7 +2464,7 @@ void MainWindow::on_actionOpen_in_another_window_triggered()
         if (!terms.isEmpty()) {
             terms.prepend(QApplication::arguments().first());
 
-            MainWindow *b = new MainWindow(terms, 0);
+            MainWindow *b = new MainWindow(terms, m_newWindowCallback, m_backupServicePauser->Clone(), nullptr);
             b->show();
         }
     });
@@ -2519,7 +2553,8 @@ void MainWindow::on_actionGo_to_Line_triggered()
 void MainWindow::on_actionInstall_Extension_triggered()
 {
     // See https://github.com/notepadqq/notepadqq/issues/654
-    BackupServicePauser bsp; bsp.pause();
+    auto bs = m_backupServicePauser->Clone(); bs->pause();
+
 
     QString file = QFileDialog::getOpenFileName(this, tr("Extension"), QString(), "Notepadqq extensions (*.nqqext)");
     if (!file.isNull()) {
@@ -2534,34 +2569,8 @@ void MainWindow::showExtensionsMenu(bool show)
     ui->menu_Extensions->menuAction()->setVisible(show);
 }
 
-QString MainWindow::getDefaultToolBarString() const
-{
-    QStringList list;
 
-    list << ui->actionNew->objectName();
-    list << ui->actionOpen->objectName();
-    list << ui->actionSave->objectName();
-    list << ui->actionSave_All->objectName();
-    list << ui->actionClose->objectName();
-    list << ui->actionClose_All->objectName();
-    list << "Separator";
-    list << ui->actionCut->objectName();
-    list << ui->actionCopy->objectName();
-    list << ui->actionPaste->objectName();
-    list << "Separator";
-    list << ui->actionUndo->objectName();
-    list << ui->actionRedo->objectName();
-    list << "Separator";
-    list << ui->actionZoom_In->objectName();
-    list << ui->actionZoom_Out->objectName();
-    list << "Separator";
-    list << ui->actionWord_wrap->objectName();
-    list << ui->actionShow_All_Characters->objectName();
-
-    return list.join('|');
-}
-
-QToolBar*MainWindow::getToolBar() const
+ToolBar*MainWindow::getToolBar() const
 {
     return m_mainToolBar;
 }
@@ -2594,7 +2603,7 @@ void MainWindow::on_actionToggle_Smart_Indent_toggled(bool on)
 void MainWindow::on_actionLoad_Session_triggered()
 {
     // See https://github.com/notepadqq/notepadqq/issues/654
-    BackupServicePauser bsp; bsp.pause();
+    auto bs = m_backupServicePauser->Clone(); bs->pause();
 
     QString recentFolder = QUrl::fromLocalFile(
                                m_settings.General.getLastSelectedSessionDir())
@@ -2617,7 +2626,8 @@ void MainWindow::on_actionLoad_Session_triggered()
 void MainWindow::on_actionSave_Session_triggered()
 {
     // See https://github.com/notepadqq/notepadqq/issues/654
-    BackupServicePauser bsp; bsp.pause();
+    auto bs = m_backupServicePauser->Clone(); bs->pause();
+
 
     QString recentFolder = QUrl::fromLocalFile(
                                m_settings.General.getLastSelectedSessionDir())

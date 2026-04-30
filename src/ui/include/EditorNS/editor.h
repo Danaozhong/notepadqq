@@ -3,6 +3,7 @@
 
 #include "include/EditorNS/customqwebview.h"
 #include "include/EditorNS/languageservice.h"
+#include "include/EditorNS/js_bindings.h"
 
 #include <QObject>
 #include <QQueue>
@@ -91,40 +92,7 @@ namespace EditorNS
 
         static void invalidateEditorBuffer();
 
-        struct Cursor {
-            int line;
-            int column;
-
-            bool operator == (const Cursor &x) const {
-                return line == x.line && column == x.column;
-            }
-
-            bool operator < (const Cursor &x) const {
-                return std::tie(line, column) < std::tie(x.line, x.column);
-            }
-
-            bool operator <= (const Cursor &x) const {
-                return *this == x || *this < x;
-            }
-
-            bool operator > (const Cursor &x) const {
-                return !(*this <= x);
-            }
-
-            bool operator >= (const Cursor &x) const {
-                return !(*this < x);
-            }
-        };
-
-        struct Selection {
-            Cursor from;
-            Cursor to;
-        };
-
-        struct IndentationMode {
-            bool useTabs;
-            int size;
-        };
+        
 
         /**
          * @brief Just a flag that is used for marking editors that are still loading,
@@ -207,6 +175,7 @@ namespace EditorNS
         Q_INVOKABLE void setLanguageFromFilePath();
         Q_INVOKABLE QtPromise::QPromise<void> setValue(const QString &value);
         Q_INVOKABLE QString value();
+        Q_INVOKABLE const QString value() const;
 
         /**
          * @brief Set custom indentation settings which may be different
@@ -294,7 +263,7 @@ namespace EditorNS
         void setTheme(Theme theme);
         static Editor::Theme themeFromName(QString name);
 
-        QList<Selection> selections();
+        QList<Selection> selections() const;
 
         /**
          * @brief Returns the currently selected texts.
@@ -311,7 +280,7 @@ namespace EditorNS
          *         significative only if the second element ("found") is true.
          */
         QtPromise::QPromise<std::pair<IndentationMode, bool>> detectDocumentIndentation();
-        Editor::IndentationMode indentationMode();
+        IndentationMode indentationMode();
         QtPromise::QPromise<IndentationMode> indentationModeP();
 
         QtPromise::QPromise<QString> getCurrentWord();
@@ -330,7 +299,7 @@ namespace EditorNS
             std::function<void (QVariant)> callback;
         };
 
-        std::list<AsyncReply> asyncReplies;
+        mutable std::list<AsyncReply> asyncReplies;
 
         // These functions should only be used by EditorTabWidget to manage the tab's title. This works around
         // KDE's habit to automatically modify QTabWidget's tab titles to insert shortcut sequences (like &1).
@@ -344,13 +313,13 @@ namespace EditorNS
         QUrl m_filePath = QUrl();
         QString m_tabName;
         bool m_fileOnDiskChanged = false;
-        bool m_loaded = false;
+        mutable bool m_loaded = false;
         QString m_endOfLineSequence = "\n";
         QTextCodec *m_codec = QTextCodec::codecForName("UTF-8");
         bool m_bom = false;
         bool m_customIndentationMode = false;
         const Language* m_currentLanguage = nullptr;
-        inline void waitAsyncLoad();
+        inline void waitAsyncLoad() const;
 
         void fullConstructor(const Theme &theme);
 
@@ -386,13 +355,13 @@ namespace EditorNS
     public slots:
 
         // [[deprecated]]
-        void sendMessage(const QString msg, const QVariant data);
+        void sendMessage(const QString msg, const QVariant data) const;
         // [[deprecated]]
-        void sendMessage(const QString msg);
+        void sendMessage(const QString msg) const;
 
 
-        QtPromise::QPromise<QVariant> asyncSendMessageWithResultP(const QString msg, const QVariant data);
-        QtPromise::QPromise<QVariant> asyncSendMessageWithResultP(const QString msg);
+        QtPromise::QPromise<QVariant> asyncSendMessageWithResultP(const QString msg, const QVariant data) const;
+        QtPromise::QPromise<QVariant> asyncSendMessageWithResultP(const QString msg) const;
 
         /**
          * @brief asyncSendMessageWithResult
@@ -403,9 +372,9 @@ namespace EditorNS
          * @return
          */
         // [[deprecated]]
-        std::shared_future<QVariant> asyncSendMessageWithResult(const QString msg, const QVariant data, std::function<void(QVariant)> callback = nullptr);
+        std::shared_future<QVariant> asyncSendMessageWithResult(const QString msg, const QVariant data, std::function<void(QVariant)> callback = nullptr) const;
         // [[deprecated]]
-        std::shared_future<QVariant> asyncSendMessageWithResult(const QString msg, std::function<void(QVariant)> callback = nullptr);
+        std::shared_future<QVariant> asyncSendMessageWithResult(const QString msg, std::function<void(QVariant)> callback = nullptr) const;
 
         /**
          * @brief Print the editor. As of Qt 5.11, it produces low-quality, non-vector graphics with big dimension.

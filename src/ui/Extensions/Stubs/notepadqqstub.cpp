@@ -2,8 +2,10 @@
 
 #include "include/Extensions/Stubs/windowstub.h"
 #include "include/Extensions/runtimesupport.h"
+#include "include/Extensions/extensionsloader.h"
 #include "include/globals.h"
 #include "include/notepadqq.h"
+#include "include/notepadqq_env.h"
 
 #include <QApplication>
 
@@ -30,7 +32,10 @@ namespace Extensions {
             QJsonArray args;
             args.append(rts->getJSONStub(rts->presentObject(windowStub), windowStub->stubName()));
 
-            rts->emitEvent(this, "newWindow", args);
+            auto event = rts->emitEvent(this, "newWindow", args);
+            if (event.has_value()) {
+                ExtensionsLoader::extensionsServer()->broadcastMessage(event.value());
+            }
         }
 
         NQQ_DEFINE_EXTENSION_METHOD(NotepadqqStub, commandLineArguments, )
@@ -41,7 +46,7 @@ namespace Extensions {
 
         NQQ_DEFINE_EXTENSION_METHOD(NotepadqqStub, version, )
         {
-            return StubReturnValue(QJsonValue(::Notepadqq::version));
+            return StubReturnValue(QJsonValue(::NotepadqqEnv::version));
         }
 
         NQQ_DEFINE_EXTENSION_METHOD(NotepadqqStub, print, args)

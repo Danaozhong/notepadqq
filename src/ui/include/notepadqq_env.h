@@ -20,12 +20,10 @@
  *
  */
 
-#ifndef NOTEPADQQ_H
-#define NOTEPADQQ_H
+#ifndef NOTEPADQQ_ENV_H
+#define NOTEPADQQ_ENV_H
 
-#include "include/mainwindow.h"
 
-#include <QApplication>
 #include <QCommandLineParser>
 #include <QFile>
 #include <QList>
@@ -43,18 +41,16 @@
 /**
  * @brief Global information and utility functions.
  */
-class Notepadqq : public QObject
+class NotepadqqEnv
 {
-    Q_OBJECT
 public:
 
-    static Notepadqq& getInstance()
+    static NotepadqqEnv& getInstance()
     {
-        static Notepadqq instance;
+        static NotepadqqEnv instance;
         return instance;
     }
 
-#if 0
     static const QString version;
     static const QString contributorsUrl;
     static const QString website;
@@ -73,20 +69,16 @@ public:
 
     static QList<QString> translations();
 
-
     /**
      * @brief Print environment information for debugging purposes.
      */
     static void printEnvironmentInfo();
-#endif
 
-signals:
-    void newWindow(MainWindow *window);
 
 private:
-    Notepadqq() {}
-    Notepadqq(Notepadqq const&);      // Don't implement
-    void operator=(Notepadqq const&); // Don't implement
+    NotepadqqEnv() {}
+    NotepadqqEnv(NotepadqqEnv const&);      // Don't implement
+    void operator=(NotepadqqEnv const&); // Don't implement
 };
 
 #endif // NOTEPADQQ_H

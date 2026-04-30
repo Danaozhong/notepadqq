@@ -1,7 +1,7 @@
 #ifndef TOPEDITORCONTAINER_H
 #define TOPEDITORCONTAINER_H
 
-#include "EditorNS/editor.h"
+//#include "EditorNS/editor.h"
 #include "editortabwidget.h"
 
 #include <QSplitter>
@@ -22,8 +22,8 @@ class TopEditorContainer : public QSplitter
 public:
     explicit TopEditorContainer(QWidget *parent = nullptr);
     EditorTabWidget *addTabWidget();
-    EditorTabWidget *tabWidget(int index);
-    EditorTabWidget *currentTabWidget();
+    EditorTabWidget *tabWidget(int index) const;
+    EditorTabWidget *currentTabWidget() const;
 
     /**
      * @brief Returns either of the two first tabwidgets that is not currently active.
@@ -35,10 +35,13 @@ public:
     /**
      * @brief Returns the EditorTabWidget that contains a particular Editor
      * @param editor
-     * @return EditorTabWidget. Returns 0 if not found.
+     * @return EditorTabWidget. Returns nullptr if not found.
      */
-    EditorTabWidget *tabWidgetFromEditor(QSharedPointer<Editor> editor);
-    EditorTabWidget *tabWidgetFromEditor(Editor *editor);
+     // TODO Clemens - provide proper const/non-const overloads for this method.
+    EditorTabWidget *tabWidgetFromEditor(QSharedPointer<const Editor> editor) const;
+    EditorTabWidget *tabWidgetFromEditor(QSharedPointer<Editor> editor) const;
+    EditorTabWidget *tabWidgetFromEditor(const Editor *editor) const;
+    EditorTabWidget *tabWidgetFromEditor(Editor *editor) const;
 
     /**
      * @brief Executes the specified function for each editor in this container.
@@ -73,6 +76,15 @@ public:
     QtPromise::QPromise<void> forEachEditorConcurrent(std::function<void (const int tabWidgetId, const int editorId, EditorTabWidget *tabWidget, QSharedPointer<Editor> editor, std::function<void()> done)> callback);
 
     std::vector<QSharedPointer<Editor>> getOpenEditors();
+    std::vector<QSharedPointer<const Editor>> getOpenEditors() const;
+
+    /**
+     * @brief Returns the currently active editor.
+     * @return QSharedPointer<Editor>. Returns nullptr if no editor is active.
+     */
+    QSharedPointer<Editor> currentEditor();
+    QSharedPointer<const Editor> currentEditor() const;
+
 
     /**
      * @brief Returns the number of editors in all of the TopEditorWidget's children.

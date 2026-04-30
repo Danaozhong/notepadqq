@@ -1,6 +1,6 @@
 #include "include/EditorNS/editor.h"
 
-#include "include/notepadqq.h"
+#include "include/notepadqq_env.h"
 #include "include/nqqsettings.h"
 
 #include <QDir>
@@ -12,6 +12,7 @@
 #include <QUrlQuery>
 #include <QVBoxLayout>
 #include <QWebChannel>
+#include <QApplication>
 #include <QWebEngineSettings>
 
 namespace EditorNS
@@ -48,7 +49,7 @@ namespace EditorNS
         query.addQueryItem("themePath", theme.path);
         query.addQueryItem("themeName", theme.name);
 
-        QUrl url = QUrl("file://" + Notepadqq::editorPath());
+        QUrl url = QUrl("file://" + NotepadqqEnv::editorPath());
         url.setQuery(query);
 
         QWebChannel * channel = new QWebChannel(this);
@@ -117,7 +118,7 @@ namespace EditorNS
         m_editorBuffer.clear();
     }
 
-    void Editor::waitAsyncLoad()
+    void Editor::waitAsyncLoad() const
     {
         if (!m_loaded) {
             QEventLoop loop;
@@ -314,7 +315,7 @@ namespace EditorNS
                                            QVariantMap{{"useTabs", useTabs}, {"size", size}}).then([](){});
     }
 
-    Editor::IndentationMode Editor::indentationMode()
+    IndentationMode Editor::indentationMode()
     {
         QVariantMap indent = asyncSendMessageWithResult("C_FUN_GET_INDENTATION_MODE").get().toMap();
         IndentationMode out;
@@ -323,7 +324,7 @@ namespace EditorNS
         return out;
     }
 
-    QtPromise::QPromise<Editor::IndentationMode> Editor::indentationModeP()
+    QtPromise::QPromise<IndentationMode> Editor::indentationModeP()
     {
         return asyncSendMessageWithResultP("C_FUN_GET_INDENTATION_MODE").then([](QVariant result){
             QVariantMap indent = result.toMap();
@@ -377,6 +378,11 @@ namespace EditorNS
         return asyncSendMessageWithResult("C_FUN_GET_VALUE").get().toString();
     }
 
+    const QString Editor::value() const
+    {
+        return asyncSendMessageWithResult("C_FUN_GET_VALUE").get().toString();
+    }
+
     bool Editor::fileOnDiskChanged() const
     {
         return m_fileOnDiskChanged;
@@ -387,7 +393,7 @@ namespace EditorNS
         m_fileOnDiskChanged = fileOnDiskChanged;
     }
 
-    void Editor::sendMessage(const QString msg, const QVariant data)
+    void Editor::sendMessage(const QString msg, const QVariant data) const
     {
 #ifdef QT_DEBUG
         qDebug() << "Legacy message " << msg << " sent.";
@@ -397,14 +403,14 @@ namespace EditorNS
         emit m_jsToCppProxy->messageReceivedByJs(msg, data);
     }
 
-    void Editor::sendMessage(const QString msg)
+    void Editor::sendMessage(const QString msg) const
     {
         sendMessage(msg, 0);
     }
 
     unsigned int messageIdentifier = 0;
 
-    QtPromise::QPromise<QVariant> Editor::asyncSendMessageWithResultP(const QString msg, const QVariant data)
+    QtPromise::QPromise<QVariant> Editor::asyncSendMessageWithResultP(const QString msg, const QVariant data) const
     {
         unsigned int currentMsgIdentifier = ++messageIdentifier;
 
@@ -448,12 +454,12 @@ namespace EditorNS
         return resultPromise;
     }
 
-    QtPromise::QPromise<QVariant> Editor::asyncSendMessageWithResultP(const QString msg)
+    QtPromise::QPromise<QVariant> Editor::asyncSendMessageWithResultP(const QString msg) const
     {
         return this->asyncSendMessageWithResultP(msg, 0);
     }
 
-    std::shared_future<QVariant> Editor::asyncSendMessageWithResult(const QString msg, const QVariant data, std::function<void(QVariant)> callback)
+    std::shared_future<QVariant> Editor::asyncSendMessageWithResult(const QString msg, const QVariant data, std::function<void(QVariant)> callback) const
     {
         unsigned int currentMsgIdentifier = ++messageIdentifier;
 
@@ -480,7 +486,7 @@ namespace EditorNS
         return fut;
     }
 
-    std::shared_future<QVariant> Editor::asyncSendMessageWithResult(const QString msg, std::function<void(QVariant)> callback)
+    std::shared_future<QVariant> Editor::asyncSendMessageWithResult(const QString msg, std::function<void(QVariant)> callback) const
     {
         return this->asyncSendMessageWithResult(msg, 0, callback);
     }
@@ -665,7 +671,7 @@ namespace EditorNS
         if (name == "default" || name.isEmpty())
             return Theme();
 
-        QFileInfo editorPath(Notepadqq::editorPath());
+        QFileInfo editorPath(NotepadqqEnv::editorPath());
         QDir bundledThemesDir(editorPath.absolutePath() + "/libs/codemirror/theme/");
 
         if (bundledThemesDir.exists(name + ".css"))
@@ -676,7 +682,7 @@ namespace EditorNS
 
     QList<Editor::Theme> Editor::themes()
     {
-        auto editorPath = QFileInfo(Notepadqq::editorPath());
+        auto editorPath = QFileInfo(NotepadqqEnv::editorPath());
         QDir bundledThemesDir(editorPath.absolutePath() + "/libs/codemirror/theme/", "*.css");
 
         QList<Theme> out;
@@ -691,7 +697,7 @@ namespace EditorNS
         sendMessage("C_CMD_SET_THEME", QVariantMap{{"name",theme.name},{"path",theme.path}});
     }
 
-    QList<Editor::Selection> Editor::selections()
+    QList<Selection> Editor::selections() const
     {
         QList<Selection> out;
 
@@ -729,7 +735,7 @@ namespace EditorNS
         asyncSendMessageWithResultP("C_CMD_SET_TABS_VISIBLE", visible);
     }
 
-    QtPromise::QPromise<std::pair<Editor::IndentationMode, bool>> Editor::detectDocumentIndentation()
+    QtPromise::QPromise<std::pair<IndentationMode, bool>> Editor::detectDocumentIndentation()
     {
         return asyncSendMessageWithResultP("C_FUN_DETECT_INDENTATION_MODE").then([](QVariant result){
             QVariantMap indent = result.toMap();

@@ -1,13 +1,15 @@
 #include "include/stats.h"
 
 #include "include/Extensions/extensionsloader.h"
-#include "include/notepadqq.h"
+#include "include/nqqsettings.h"
+#include "include/notepadqq_env.h"
 
 #include <QJsonDocument>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QPushButton>
+#include <QMessageBox>
 #include <QSysInfo>
 #include <QTimer>
 #include <QUrl>

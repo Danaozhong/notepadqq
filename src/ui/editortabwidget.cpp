@@ -78,17 +78,17 @@ void EditorTabWidget::disconnectEditorSignals(Editor *editor)
                this, &EditorTabWidget::on_fileNameChanged);
 }
 
-int EditorTabWidget::indexOf(QSharedPointer<Editor> editor) const
+int EditorTabWidget::indexOf(QSharedPointer<const Editor> editor) const
 {
     return indexOf(editor.data());
 }
 
-int EditorTabWidget::indexOf(QWidget *widget) const
+int EditorTabWidget::indexOf(const QWidget *widget) const
 {
     return QTabWidget::indexOf(widget);
 }
 
-QString EditorTabWidget::tabText(Editor* editor) const
+QString EditorTabWidget::tabText(const Editor* editor) const
 {
     return editor->tabName();
 }
@@ -249,7 +249,7 @@ QSharedPointer<Editor> EditorTabWidget::currentEditor()
     return editor(currentIndex());
 }
 
-QString EditorTabWidget::tabTextFromEditor(QSharedPointer<EditorNS::Editor> ed)
+QString EditorTabWidget::tabTextFromEditor(QSharedPointer<const EditorNS::Editor> ed)
 {
     for(int i=0; i<count(); ++i)
         if (editor(i) == ed) return tabText(i);

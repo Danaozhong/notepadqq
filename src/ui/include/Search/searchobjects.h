@@ -27,7 +27,7 @@ struct SearchConfig {
     QString searchString;
     QString filePattern; // Only used if searchMode==ScopeFileSystem.
     QString directory;   // Only used if searchMode==ScopeFileSystem.
-    MainWindow* targetWindow = nullptr; // Only used if searchMode is ScopeCurrentDocument or ScopeAllOpenDocuements
+
 
     bool matchCase      = false;
     bool matchWord      = false;

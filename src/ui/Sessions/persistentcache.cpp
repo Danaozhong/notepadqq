@@ -1,6 +1,10 @@
 #include "include/Sessions/persistentcache.h"
 
-#include "include/notepadqq.h"
+#include "include/notepadqq_env.h"
+
+#include <QString>
+#include <QSettings>
+
 
 QString PersistentCache::cacheSessionPath() {
     static QString cachePath = QFileInfo(QSettings().fileName()).dir().absolutePath().append("/session.xml");

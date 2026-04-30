@@ -6,6 +6,7 @@
 #include "include/globals.h"
 #include "include/mainwindow.h"
 #include "include/notepadqq.h"
+#include "include/notepadqq_env.h"
 #include "include/nqqsettings.h"
 #include "include/singleapplication.h"
 #include "include/stats.h"
@@ -49,7 +50,7 @@ int main(int argc, char *argv[])
 
     QCoreApplication::setOrganizationName("Notepadqq");
     QCoreApplication::setApplicationName("Notepadqq");
-    QCoreApplication::setApplicationVersion(Notepadqq::version);
+    QCoreApplication::setApplicationVersion(NotepadqqEnv::version);
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
     QGuiApplication::setDesktopFileName("notepadqq");
@@ -86,10 +87,10 @@ int main(int argc, char *argv[])
         settings.General.setLocalization("en");
     }
     // Check for "run-and-exit" options like -h or -v
-    const auto parser = Notepadqq::getCommandLineArgumentsParser(QApplication::arguments());
+    const auto parser = NotepadqqEnv::getCommandLineArgumentsParser(QApplication::arguments());
 
     if (parser->isSet("print-debug-info")) {
-        Notepadqq::printEnvironmentInfo();
+        NotepadqqEnv::printEnvironmentInfo();
         return EXIT_SUCCESS;
     }
 
@@ -108,10 +109,10 @@ int main(int argc, char *argv[])
 
     // Arguments received from another instance
     QObject::connect(&a, &SingleApplication::receivedArguments, &a, [=](const QString &workingDirectory, const QStringList &arguments) {
-        QSharedPointer<QCommandLineParser> parser = Notepadqq::getCommandLineArgumentsParser(arguments);
+        QSharedPointer<QCommandLineParser> parser = NotepadqqEnv::getCommandLineArgumentsParser(arguments);
         if (parser->isSet("new-window")) {
             // Open a new window
-            MainWindow *win = new MainWindow(workingDirectory, arguments, nullptr);
+            MainWindow *win = new MainWindow(workingDirectory, arguments, [](MainWindow* wnd) { emit Notepadqq::getInstance().newWindow(wnd); }, std::make_unique<BackupServicePauser>(), nullptr);
             win->show();
         } else {
             // Send the args to the last focused window
@@ -132,7 +133,7 @@ int main(int argc, char *argv[])
     // There are no other instances: start a new server.
     a.startServer();
 
-    QFileInfo finfo(Notepadqq::editorPath());
+    QFileInfo finfo(NotepadqqEnv::editorPath());
     if (!finfo.isReadable()) {
         qCritical() << "Can't open file: " + finfo.filePath();
         return EXIT_FAILURE;
@@ -140,7 +141,7 @@ int main(int argc, char *argv[])
 
     if (Extensions::ExtensionsLoader::extensionRuntimePresent()) {
         Extensions::ExtensionsLoader::startExtensionsServer();
-        Extensions::ExtensionsLoader::loadExtensions(Notepadqq::extensionsPath());
+        Extensions::ExtensionsLoader::loadExtensions(NotepadqqEnv::extensionsPath());
     } else {
 #ifdef QT_DEBUG
         qDebug() << "Extension support is not installed.";
@@ -151,13 +152,13 @@ int main(int argc, char *argv[])
     const bool wantToRestore = settings.General.getAutosaveInterval() > 0 && BackupService::detectImproperShutdown();
     if (wantToRestore) {
         // Attempt to restore from backup. Don't forget to handle commandline arguments.
-        if (BackupService::restoreFromBackup())
+        if (BackupService::restoreFromBackup([](MainWindow* wnd) { emit Notepadqq::getInstance().newWindow(wnd); }))
             MainWindow::instances().back()->openCommandLineProvidedUrls(QDir::currentPath(), QApplication::arguments());
     }
 
     // If we don't have a window by now (e.g. through restoring backup), we'll create one normally.
     if (MainWindow::instances().isEmpty()) {
-        MainWindow* wnd = new MainWindow(QStringList(), nullptr);
+        MainWindow* wnd = new MainWindow(QStringList(), [](MainWindow* wnd) { emit Notepadqq::getInstance().newWindow(wnd); }, std::make_unique<BackupServicePauser>(), nullptr);
 
         if (settings.General.getRememberTabsOnExit()) {
             Sessions::loadSession(wnd->getDocEngine(), wnd->topEditorContainer(), PersistentCache::cacheSessionPath());

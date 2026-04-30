@@ -2,12 +2,13 @@
 #define ADVANCEDSEARCHDOCK_H
 
 #include "searchinstance.h"
+#include "topeditorcontainer.h"
 
 #include <QAbstractButton>
 #include <QDockWidget>
 #include <QObject>
 #include <QString>
-
+#include <QMainWindow>
 #include <memory>
 #include <vector>
 
@@ -40,13 +41,12 @@ public:
     void paintEvent(QPaintEvent *event);
 };
 
-class MainWindow;
 
 class AdvancedSearchDock : public QObject
 {
     Q_OBJECT
 public:
-    AdvancedSearchDock(MainWindow* mainWindow);
+    AdvancedSearchDock(QMainWindow* mainWindow, TopEditorContainer& tec);
 
     QDockWidget* getDockWidget() const;
 
@@ -71,7 +71,7 @@ signals:
     void itemInteracted(const DocResult& doc, const MatchResult* result, SearchUserInteraction type);
 
 private:
-    MainWindow* m_mainWindow;
+    TopEditorContainer& m_topEditorContainer;
 
     // Functions used to construct parts of the dock's user interface. Called in the constructor.
     QLayout* buildLeftTitlebar();

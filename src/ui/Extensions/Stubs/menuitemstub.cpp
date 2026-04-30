@@ -22,7 +22,10 @@ namespace Extensions {
             QJsonArray args;
             args.append(checked);
 
-            rts->emitEvent(this, "triggered", args);
+            auto event = rts->emitEvent(this, "triggered", args);
+            if (event.has_value()) {
+                ExtensionsLoader::extensionsServer()->broadcastMessage(event.value());
+            }
         }
 
         NQQ_DEFINE_EXTENSION_METHOD(MenuItemStub, setShortcut, args)
