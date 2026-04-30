@@ -41,8 +41,9 @@ Build it yourself
 
 #### Build
 
-    notepadqq$ ./configure --prefix /usr
-    notepadqq$ make
+```
+bazelisk build //src/ui:main
+```
 
 If you encounter errors make sure to have the necessary libraries installed. For Ubuntu you can do that using apt-get:
 
