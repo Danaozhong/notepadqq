@@ -1,6 +1,6 @@
 #include "include/frmindentationmode.h"
 
-#include "include/EditorNS/js_bindings.h"
+#include "include/EditorNS/editor_properties.h"
 #include "ui_frmindentationmode.h"
 
 frmIndentationMode::frmIndentationMode(QWidget *parent) :

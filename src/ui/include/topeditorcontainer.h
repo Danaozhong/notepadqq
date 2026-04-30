@@ -1,7 +1,6 @@
 #ifndef TOPEDITORCONTAINER_H
 #define TOPEDITORCONTAINER_H
 
-//#include "EditorNS/editor.h"
 #include "editortabwidget.h"
 
 #include <QSplitter>

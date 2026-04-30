@@ -1,7 +1,7 @@
 #ifndef FRMINDENTATIONMODE_H
 #define FRMINDENTATIONMODE_H
 
-#include "include/EditorNS/js_bindings.h"
+#include "include/EditorNS/editor_properties.h"
 
 #include <QDialog>
 

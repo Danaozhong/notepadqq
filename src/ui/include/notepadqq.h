@@ -55,7 +55,6 @@ public:
         return instance;
     }
 
-#if 1
     static const QString version;
     static const QString contributorsUrl;
     static const QString website;
@@ -74,12 +73,10 @@ public:
 
     static QList<QString> translations();
 
-
     /**
      * @brief Print environment information for debugging purposes.
      */
     static void printEnvironmentInfo();
-#endif
 
 signals:
     void newWindow(QMainWindow *window);

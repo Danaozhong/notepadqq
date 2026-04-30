@@ -1,7 +1,5 @@
 #include "include/notepadqq.h"
 
-//#include "include/Extensions/extensionsloader.h"
-//#include "include/Extensions/runtimesupport.h"
 #include "include/nqqsettings.h"
 
 #include <QCheckBox>
@@ -9,7 +7,6 @@
 #include <QFileInfo>
 #include <QMessageBox>
 
-#if 1
 const QString Notepadqq::version = POINTVERSION;
 const QString Notepadqq::contributorsUrl = "https://github.com/notepadqq/notepadqq/graphs/contributors";
 const QString Notepadqq::website = "https://notepadqq.com";
@@ -174,4 +171,3 @@ void Notepadqq::printEnvironmentInfo()
     qDebug() << QString("CPU: %1").arg(QSysInfo::currentCpuArchitecture()).toStdString().c_str();
     qDebug() << QString("Kernel: %1 - %2").arg(QSysInfo::kernelType(), QSysInfo::kernelVersion()).toStdString().c_str();
 }
-#endif

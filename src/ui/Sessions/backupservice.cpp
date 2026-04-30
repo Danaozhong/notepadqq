@@ -2,7 +2,7 @@
 
 #include "include/Sessions/persistentcache.h"
 #include "include/Sessions/sessions.h"
-//#include "include/mainwindow.h"
+#include "include/mainwindow.h"
 
 #include <QApplication>
 

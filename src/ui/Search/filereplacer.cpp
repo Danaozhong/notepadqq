@@ -53,7 +53,7 @@ void FileReplacer::replaceAll(const DocResult& doc, QString& content, const QStr
 
     int newLength = 0; // length of the new string, with all the replacements
     int lastEnd = 0;
-    QVector<QStringView> chunks;  // PERF: instead of QString, these could be QStringRef
+    QVector<QStringView> chunks;
     const QStringView copy = QStringView(content);
 
     for (const auto& result : doc.results) {
@@ -89,7 +89,7 @@ void FileReplacer::replaceAll(const DocResult& doc, QString& content, const QStr
         // add the last part of the after string
         len = replacement.length() - lastEnd;
         if (len > 0) {
-            chunks << QStringView(replacement).mid(lastEnd, len);
+            chunks << replacement.mid(lastEnd, len);
             newLength += len;
         }
 

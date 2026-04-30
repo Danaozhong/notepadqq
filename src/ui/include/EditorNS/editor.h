@@ -3,7 +3,7 @@
 
 #include "include/EditorNS/customqwebview.h"
 #include "include/EditorNS/languageservice.h"
-#include "include/EditorNS/js_bindings.h"
+#include "include/EditorNS/editor_properties.h"
 
 #include <QObject>
 #include <QQueue>

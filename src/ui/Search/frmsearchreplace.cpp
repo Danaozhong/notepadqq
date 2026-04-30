@@ -4,7 +4,7 @@
 #include "include/iconprovider.h"
 #include "include/nqqsettings.h"
 #include "ui_Search/frmsearchreplace.h"
-#include "include/EditorNS/js_bindings.h"
+#include "include/EditorNS/editor_properties.h"
 
 #include <QCompleter>
 #include <QFileDialog>

@@ -160,7 +160,6 @@ MainWindow::MainWindow(const QString &workingDirectory, const QStringList &argum
 
     //Register our meta types for signal/slot calls here.
     m_newWindowCallback(this);
-    //emit Notepadqq::getInstance().newWindow(this);
 }
 
 MainWindow::MainWindow(const QStringList &arguments, std::function<void(MainWindow*)> newWindowCallback, std::unique_ptr<BackupServicePauserInterface> backupServicePauser, QWidget *parent)

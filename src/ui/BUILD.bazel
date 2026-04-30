@@ -129,9 +129,9 @@ qt_cc_library(
 )
 
 qt_cc_library(
-    name = "js_bindings",
+    name = "editor_properties",
     srcs = [],
-    hdrs = ["include/EditorNS/js_bindings.h"],
+    hdrs = ["include/EditorNS/editor_properties.h"],
 )
 
 qt_cc_library(
@@ -374,7 +374,7 @@ qt_cc_library(
     ],
     deps = [
         ":customqwebview",
-        ":js_bindings",
+        ":editor_properties",
         ":language_service",
         ":nqqsettings",
         ":qtpromise",
