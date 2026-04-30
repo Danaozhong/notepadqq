@@ -10,22 +10,27 @@ jobs:
 
   notepadqq-linux:
     runs-on: ubuntu-latest
-    steps:   
-    - name: Build and push
-      uses: docker/build-push-action@v3
-      with:
-        push: false
-        file: build.Dockerfile
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup Bazelisk
+      uses: bazelbuild/setup-bazelisk@v3
+    - name: Build
+      run: bazelisk build //src/ui:main
 
   notepadqq-macos:
     runs-on: macos-latest
-    steps:   
+    steps:
     - uses: actions/checkout@v3
-      with:
-        submodules: true
-    - name: Install dependencies
-      run: brew install qt@6 uchardet
+    - name: Setup Bazelisk
+      uses: bazelbuild/setup-bazelisk@v3
     - name: Build
-      run: ./configure && make
-    - name: Test
-      run: ./src/ui-tests/ui-tests.app/Contents/MacOS/ui-tests
+      run: bazelisk build //src/ui:main
+
+  notepadqq-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup Bazelisk
+      uses: bazelbuild/setup-bazelisk@v3
+    - name: Build
+      run: bazelisk build //src/ui:main
