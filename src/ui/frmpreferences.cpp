@@ -368,11 +368,6 @@ void frmPreferences::saveToolbar()
     m_settings.MainWindow.setToolBarItems(string);
 
     emit refreshToolBar();
-    // TODO clemens - move to caller
-#if 0
-    for (auto* wnd : MainWindow::instances())
-        wnd->loadToolBar();
-#endif
 }
 
 bool frmPreferences::applySettings()
