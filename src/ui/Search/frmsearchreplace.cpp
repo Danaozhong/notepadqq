@@ -4,12 +4,14 @@
 #include "include/iconprovider.h"
 #include "include/nqqsettings.h"
 #include "ui_frmsearchreplace.h"
+#include "include/EditorNS/editor_properties.h"
 
 #include <QCompleter>
 #include <QFileDialog>
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QThread>
+#include <QActionGroup>
 
 frmSearchReplace::frmSearchReplace(TopEditorContainer *topEditorContainer, QWidget *parent) :
     QMainWindow(parent),
@@ -97,7 +99,7 @@ void frmSearchReplace::setSearchText(QString string)
       Workaround is to disable auto complete until the search box was manually edited
       which prevents the bug. Auto complete is enabled again in on_searchStringEdited.
     */
-    ui->cmbSearch->setAutoCompletion(false);
+    // ui->cmbSearch->setCompleter(nullptr);
 }
 
 void frmSearchReplace::setCurrentTab(Tabs tab)
@@ -373,7 +375,7 @@ void frmSearchReplace::on_searchStringEdited(const QString &/*text*/)
         if (ui->actionFind->isChecked()) {
             auto editor = currentEditor();
 
-            QList<Editor::Selection> selections = editor->selections();
+            QList<Selection> selections = editor->selections();
             if (selections.length() > 0) {
                 editor->setCursorPosition(
                             std::min(selections[0].from, selections[0].to));
@@ -384,7 +386,7 @@ void frmSearchReplace::on_searchStringEdited(const QString &/*text*/)
     }
 
     // Workaround. See comment in setSearchText().
-    ui->cmbSearch->setAutoCompletion(true);
+    // FIXME Is this still needed?
     ui->cmbSearch->completer()->setCaseSensitivity(Qt::CaseSensitive);
 }
 
